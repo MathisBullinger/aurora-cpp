@@ -8,6 +8,8 @@
 
 #define COLUMN_MAJOR
 
+namespace aur {
+
 template <const unsigned int rows, const unsigned int columns, typename T = double>
 class Matrix {
   public:
@@ -69,29 +71,6 @@ static Matrix<4, 4, T> translation(T x, T y, T z) {
   return result;
 }
 
-static Matrix<4, 4, float> perspective(float aspect, float fov, float near, float far) {
-  return Matrix<4, 4, float>({
-    1 / (aspect * tan(fov / 2)),  0.f,                0.f,                           0.f,
-    0.f,                          1 / tan(fov / 2),   0.f,                           0.f,
-    0.f,                          0.f,               -(far + near) / (far - near),  -(2 * far * near) / (far - near),
-    0.f,                          0.f,               -1.f,                           0.f,
-  });
-}
-
-static Matrix<4, 4, float> make_view(
-  float rx, float ry, float rz,
-  float ux, float uy, float uz,
-  float fx, float fy, float fz, 
-  float px, float py, float pz
-) {
-  return Matrix<4, 4, float>({
-    rx, ux, fx, px,
-    ry, uy, fy, py,
-    rz, uz, fz, pz,
-    0.f, 0.f, 0.f, 1.f
-  });
-}
-
 template <const unsigned int R, const unsigned int C, typename N>
 std::ostream& operator<<(std::ostream& os, const Matrix<R, C, N>& target) {
   os << R << "x" << C << " Matrix <" << typeid(N).name() << ">";
@@ -130,4 +109,6 @@ std::ostream& operator<<(std::ostream& os, const Matrix<R, C, N>& target) {
   }
   
   return os;
+}
+
 }
