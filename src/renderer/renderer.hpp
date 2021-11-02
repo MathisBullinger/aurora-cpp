@@ -15,6 +15,9 @@ class Renderer {
 
   private:
     bool glLogCall(const char* fun, const char* file, unsigned int line);
+
+    unsigned int incr = 0;
+    int mvpID;
   
     Shader* shader = nullptr;
 };

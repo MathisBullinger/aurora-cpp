@@ -14,18 +14,14 @@ class Vector {
   
     T values[dimensions] = {0};
 
-    const T& x() const {
-      return values[0];
-    }
-
-    Vector<dimensions, T> operator+(const Vector<dimensions, T>& rhs) const {
+    Vector<dimensions, T> operator +(const Vector<dimensions, T>& rhs) const {
       Vector<dimensions, T> result;
       for (unsigned int i = 0; i < dimensions; i++)
         result.values[i] = values[i] + rhs.values[i];
       return result;
     }
 
-    Vector<dimensions, T> operator-(const Vector<dimensions, T>& rhs) const {
+    Vector<dimensions, T> operator -(const Vector<dimensions, T>& rhs) const {
       Vector<dimensions, T> result;
       for (unsigned int i = 0; i < dimensions; i++)
         result.values[i] = values[i] - rhs.values[i];
@@ -33,7 +29,7 @@ class Vector {
     }
 
     template <typename N>
-    Vector<dimensions, decltype(std::declval<T&>() * std::declval<N&>())> operator*(N n) const {
+    Vector<dimensions, decltype(std::declval<T&>() * std::declval<N&>())> operator *(N n) const {
       Vector<dimensions, decltype(std::declval<T&>() * std::declval<N&>())> result;
       for (unsigned int i = 0; i < dimensions; i++) 
         result.values[i] = values[i] * n;
@@ -41,7 +37,7 @@ class Vector {
     }
 
     template <typename N>
-    Vector<dimensions, decltype(std::declval<T&>() / std::declval<N&>())> operator/(N n) const {
+    Vector<dimensions, decltype(std::declval<T&>() / std::declval<N&>())> operator /(N n) const {
       Vector<dimensions, decltype(std::declval<T&>() / std::declval<N&>())> result;
       for (unsigned int i = 0; i < dimensions; i++) 
         result.values[i] = values[i] / n;
@@ -49,9 +45,16 @@ class Vector {
     }
 
     Vector<dimensions, T>& operator*=(T n) {
-      // for (auto v : values) v *= n;
       for (unsigned int i = 0; i < dimensions; i++) values[i] *= n;
       return *this;
+    }
+
+    T operator [](unsigned int i) const {
+      return values[i];
+    }
+
+    T& operator [](unsigned int i) {
+      return values[i];
     }
 
     double magnitude() const {

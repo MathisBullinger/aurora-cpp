@@ -30,9 +30,9 @@ static GLMatrix lookAt(
   zAxis *= -1;
   
   return GLMatrix({
-    xAxis.values[0], xAxis.values[1], xAxis.values[2], -xAxis.dot(eye),
-    yAxis.values[0], yAxis.values[1], yAxis.values[2], -yAxis.dot(eye),
-    zAxis.values[0], zAxis.values[1], zAxis.values[2], -zAxis.dot(eye),
+    xAxis[0], xAxis[1], xAxis[2], -xAxis.dot(eye),
+    yAxis[0], yAxis[1], yAxis[2], -yAxis.dot(eye),
+    zAxis[0], zAxis[1], zAxis[2], -zAxis.dot(eye),
     0, 0, 0, 1
   });
 }
