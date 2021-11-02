@@ -20,9 +20,9 @@ static auto perspective(VT aspect, VT fov, VT near, VT far) {
 }
 
 static GLMatrix lookAt(
-  const Vector<3, VT>& eye,
-  const Vector<3, VT>& at,
-  const Vector<3, VT>& up) 
+  const vec3<VT>& eye,
+  const vec3<VT>& at,
+  const vec3<VT>& up) 
 {
   auto zAxis = (at - eye).normal();
   auto xAxis = zAxis.cross(up).normal();

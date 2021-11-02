@@ -3,7 +3,6 @@
 #include "shader.hpp"
 #include <GL/glew.h>
 #include <string>
-#include "loaders/texture.hpp"
 
 namespace aur {
 

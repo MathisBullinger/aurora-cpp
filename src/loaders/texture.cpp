@@ -33,8 +33,9 @@ int Texture::loadBMP(const std::string& path) {
   GLC(glGenTextures(1, &textureId));
   GLC(glBindTexture(GL_TEXTURE_2D, textureId));
   GLC(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data));
-  GLC(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-  GLC(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+  GLC(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+  GLC(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+  GLC(glGenerateMipmap(GL_TEXTURE_2D));
 
   return textureId;
 }

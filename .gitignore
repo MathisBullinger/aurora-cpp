@@ -1,3 +1,4 @@
 .vscode
 build
-resources/textures
+resources/*
+!resouces/shaders

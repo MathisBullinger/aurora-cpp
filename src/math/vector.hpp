@@ -90,6 +90,15 @@ class Vector {
     friend std::ostream& operator<<(std::ostream&, const Vector<D, N>&);
 };
 
+template <const unsigned int D, typename T = double>
+using vec = Vector<D, T>;
+
+template <typename T = double>
+using vec2 = Vector<2, T>;
+
+template <typename T = double>
+using vec3 = Vector<3, T>;
+
 template <const unsigned int D, typename N>
 std::ostream& operator<<(std::ostream& os, const Vector<D, N>& target) {
   std::cout << "Vec" << D << "<" << typeid(N).name() << ">(";
