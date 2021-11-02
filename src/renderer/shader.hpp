@@ -1,6 +1,5 @@
 #pragma once
 
-#include "glutil.hpp"
 #include <GL/glew.h>
 #include <string>
 #include <fstream>

@@ -3,6 +3,8 @@
 
 using namespace std;
 
+namespace aur {
+
 Window::Window() {
   if (SDL_Init(SDL_INIT_VIDEO)) throw runtime_error(string("couldn't init SDL: ") + SDL_GetError());
 
@@ -36,4 +38,6 @@ void Window::clear() {
 
 void Window::swap() {
   SDL_GL_SwapWindow(window);
+}
+
 }

@@ -15,6 +15,7 @@ add_executable(${PROJECT_NAME}
   src/window/window.cpp
   src/renderer/renderer.cpp
   src/renderer/shader.cpp
+  src/loaders/texture.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE 
   SDL2::SDL2main 

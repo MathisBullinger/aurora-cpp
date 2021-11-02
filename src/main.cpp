@@ -1,7 +1,7 @@
 #include "engine.hpp"
 
 int main() {
-  Engine engine;
+  aur::Engine engine;
   engine.openWindow();
   engine.start();
 

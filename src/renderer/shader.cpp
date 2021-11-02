@@ -1,4 +1,5 @@
 #include "shader.hpp"
+#include "util/gl.hpp"
 
 Shader::Shader(const std::string& vert_path, const std::string& frag_path) 
 : program(glCreateProgram()) {

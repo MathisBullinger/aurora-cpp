@@ -1,5 +1,7 @@
 #include "engine.hpp"
 
+namespace aur {
+
 void Engine::start() {
   run();
 }
@@ -56,4 +58,6 @@ Window* Engine::closeWindow(Window* window) {
   windows.erase(it);
   delete window;
   return nullptr;
+}
+
 }

@@ -4,6 +4,8 @@
 #include <string>
 #include <SDL2/SDL.h>
 
+namespace aur {
+
 class Window {
   public:
     Window();
@@ -16,3 +18,5 @@ class Window {
     SDL_Window* window = nullptr;
     SDL_GLContext context;
 };
+
+}

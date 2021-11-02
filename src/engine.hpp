@@ -10,6 +10,8 @@
 
 using namespace std::chrono;
 
+namespace aur {
+
 class Engine {
   public:
     ~Engine();
@@ -27,3 +29,5 @@ class Engine {
     std::vector<Window*> windows;
     bool running = false;
 };
+
+}

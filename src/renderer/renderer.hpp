@@ -3,7 +3,9 @@
 #include "shader.hpp"
 #include <GL/glew.h>
 #include <string>
-#include "glutil.hpp"
+#include "loaders/texture.hpp"
+
+namespace aur {
 
 class Renderer {
   public:
@@ -21,3 +23,5 @@ class Renderer {
   
     Shader* shader = nullptr;
 };
+
+}
