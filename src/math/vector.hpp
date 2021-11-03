@@ -4,6 +4,7 @@
 #include <cmath>
 #include <utility>
 #include <iostream>
+#include <tuple>
 
 namespace aur {
 
@@ -58,6 +59,16 @@ public:
     return values[i];
   }
 
+  template <std::size_t I>
+  auto& get() {
+    return values[I];
+  }
+
+  template <std::size_t I>
+  const auto& get() const {
+    return values[I];
+  }
+
   double magnitude() const {
     double mag = 0;
     for (auto v : values) mag += pow(v, 2);
@@ -110,4 +121,14 @@ std::ostream& operator<<(std::ostream& os, const Vector<D, N>& target) {
   return os;
 }
 
+}
+
+namespace std {
+  template <const unsigned int N, typename T>
+  struct tuple_size<aur::Vector<N, T>> : std::integral_constant<std::size_t, N> {};
+
+  template <const unsigned int N, typename T, std::size_t I>
+  struct tuple_element<I, aur::Vector<N, T>> {
+    using type = T;
+  };
 }
