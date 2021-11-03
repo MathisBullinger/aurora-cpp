@@ -6,6 +6,7 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <GL/glew.h>
 
 #include "loaders/texture.hpp"
 #include "loaders/mesh.hpp"
@@ -13,84 +14,67 @@
 namespace aur {
 
 Renderer::Renderer() {
-	std::vector<float> vertices;
-	std::vector<float> uvs;
-	std::vector<float> normals;
-
-	loader::Mesh meshLoader;
-	meshLoader.loadOBJ("../resources/meshes/box.obj", vertices, uvs, normals);
-  
-  unsigned int vao;
-  GLC(glGenVertexArrays(1, &vao));
-  GLC(glBindVertexArray(vao));
-
-  unsigned int vertexbuffer;
-  GLC(glGenBuffers(1, &vertexbuffer));
-  GLC(glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer));
-  GLC(glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW));
-
-  unsigned int colorbuffer;
-	GLC(glGenBuffers(1, &colorbuffer));
-	GLC(glBindBuffer(GL_ARRAY_BUFFER, colorbuffer));
-	GLC(glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(float), &uvs[0], GL_STATIC_DRAW));
-
-  GLC(glEnable(GL_DEPTH_TEST));
+	GLC(glEnable(GL_DEPTH_TEST));
 	GLC(glDepthFunc(GL_LESS));
+	setWireMode(true);
+
+	auto teapot = new Mesh("../resources/meshes/teapot.obj");
+	objects[teapot] = std::vector<Object*>{};
+	objects[teapot].push_back(new Object(*teapot));
+
+	objects[teapot].back()->translation[0] += 2;
+	objects[teapot].back()->scale /= 3;
+	objects[teapot].back()->scale[1] *= 2.5;
 
   shader = new Shader("../resources/shaders/basic.vert", "../resources/shaders/basic.frag");
   shader->use();
 
-  // 1rst attribute buffer : vertices
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glVertexAttribPointer(
-		0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // stride
-		(void*)0            // array buffer offset
-	);
+	unsigned int vao;
+  GLC(glGenVertexArrays(1, &vao));
+  GLC(glBindVertexArray(vao));
 
-	// 2nd attribute buffer : colors
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
-	glVertexAttribPointer(
-		1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-		2,                                // size
-		GL_FLOAT,                         // type
-		GL_FALSE,                         // normalized?
-		0,                                // stride
-		(void*)0                          // array buffer offset
-	);
-
-  // view stuff
+	GLC(glEnableVertexAttribArray(0));
+	GLC(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0));
 
 
   mvpID = glGetUniformLocation(shader->program, "MVP");
 
-	loader::Texture textureLoader;
-	auto texId = textureLoader.loadBMP("../resources/textures/foo.bmp");
-	glBindTexture(GL_TEXTURE_2D, texId);
+	// loader::Texture textureLoader;
+	// auto texId = textureLoader.loadBMP("../resources/textures/foo.bmp");
+	// glBindTexture(GL_TEXTURE_2D, texId);
 }
 
 Renderer::~Renderer() {
+	for (auto [mesh, objs] : objects) {
+	  delete mesh;
+		for (auto obj : objs) delete obj;
+	}
   delete shader;
 };
 
 void Renderer::render() {
 	incr++;
-	float dist = 5;
-	float x = sin(incr / 100.f) * dist;
-	float z = cos(incr / 100.f) * dist;
-	float y = sin(incr / 133.f) * (dist / 2);
+	float dist = 8;
+	float x = sin(incr / 200.f) * dist;
+	float z = cos(incr / 200.f) * dist;
+	float y = sin(incr / 266.f) * (dist / 4) + 3;
 	
-	auto view = aur::lookAt({x, y, z}, {0, 0, 0}, {0, 1, 0});
-  auto projection = aur::perspective(800.f/600, M_PI / 4, 0.1f, 100.f);
-  auto MVP = projection * view;
-  glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP.values[0]);
+	auto view = aur::lookAt({x, y, z}, {0, 1.5, 0}, {0, 1, 0});
+  auto projection = aur::perspective(800.f/600, M_PI / 4, 0.1f, 1000.f);
 	
-  GLC(glDrawArrays(GL_TRIANGLES, 0, 12*3));
+	for (auto [mesh, objs] : objects) {
+		// bind mesh
+
+		for (auto obj : objs) {
+			auto model = matrix::translation(obj->translation) * matrix::scale(obj->scale);
+  		auto MVP = projection * view * model;
+			glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP.values[0]);
+
+			GLC(glDrawArrays(GL_TRIANGLES, 0, obj->mesh.numVertices()));
+		}
+	}
+	
+
 }
 
 void Renderer::setWireMode(bool on) {

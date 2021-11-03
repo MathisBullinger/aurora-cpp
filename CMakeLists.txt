@@ -15,6 +15,8 @@ add_executable(${PROJECT_NAME}
   src/window/window.cpp
   src/renderer/renderer.cpp
   src/renderer/shader.cpp
+  src/renderer/mesh.cpp
+  src/renderer/object.cpp
   src/loaders/texture.cpp
   src/loaders/mesh.cpp
 )

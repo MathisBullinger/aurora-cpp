@@ -1,10 +1,10 @@
 #pragma once
-
+#include <array>
 #include <vector>
 #include <string>
-#include <memory>
 #include <cmath>
 #include "util/array.hpp"
+#include "math/vector.hpp"
 
 #define COLUMN_MAJOR
 
@@ -61,14 +61,30 @@ public:
 };
 
 
+namespace matrix {
 
 template <typename T>
-static Matrix<4, 4, T> translation(T x, T y, T z) {
-  Matrix<4, 4, T> result;
-  result.set(0, 3, x);
-  result.set(1, 3, y);
-  result.set(2, 3, z);
-  return result;
+static Matrix<4, 4, T> translation(const vec3<T>& vec) {
+  auto& [x, y, z] = vec;
+  return {
+    1, 0, 0, x,
+    0, 1, 0, y,
+    0, 0, 1, z,
+    0, 0, 0, 1
+  };
+}
+
+template <typename T>
+static Matrix<4, 4, T> scale(const vec3<T>& vec) {
+  auto& [x, y, z] = vec;
+  return {
+    x, 0, 0, 0,
+    0, y, 0, 0,
+    0, 0, z, 0,
+    0, 0, 0, 1,
+  };
+}
+
 }
 
 template <const unsigned int R, const unsigned int C, typename N>

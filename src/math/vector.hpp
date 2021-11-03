@@ -46,8 +46,15 @@ public:
     return result;
   }
 
-  Vector<dimensions, T>& operator*=(T n) {
+  template <typename N>
+  Vector<dimensions, T>& operator *=(N n) {
     for (unsigned int i = 0; i < dimensions; i++) values[i] *= n;
+    return *this;
+  }
+
+  template <typename N>
+  Vector<dimensions, T>& operator /=(N n) {
+    for (unsigned int i = 0; i < dimensions; i++) values[i] /= n;
     return *this;
   }
 
