@@ -50,7 +50,6 @@ private:
 
     else if (state == V) {
       vertices.push_back(number<float>(token));
-      std::cout << token << " -> " << vertices[vertices.size() - 1] << std::endl;
       if (++elc == 3) state = SKIP;
     }
 
@@ -99,7 +98,10 @@ const std::map<std::string, OBJParser::State> OBJParser::types = {
   { "f", F }
 };
 
-bool Mesh::loadOBJ(
+
+namespace mesh {
+
+bool loadOBJ(
   const std::string& path,
   std::vector<float>& vertices,
   std::vector<float>& uvs,
@@ -115,5 +117,8 @@ bool Mesh::loadOBJ(
   parser.assemble(vertices);
   return true;
 }
+
+}
+
 
 }

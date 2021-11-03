@@ -12,52 +12,52 @@ namespace aur {
 
 template <const unsigned int rows, const unsigned int columns, typename T = double>
 class Matrix {
-  public:
-    Matrix() {
-      for (unsigned char i = 0; i < std::min(rows, columns); i++)
-        values[i * columns + i] = 1;
-    }
+public:
+  Matrix() {
+    for (unsigned char i = 0; i < std::min(rows, columns); i++)
+      values[i * columns + i] = 1;
+  }
     
-    template <typename... U>
-    Matrix(U... rowMajor) : values{T(rowMajor)...} {
-      #ifdef COLUMN_MAJOR
-        transposeMajor<T>(values, rows, columns);
-      #endif
-    }
+  template <typename... U>
+  Matrix(U... rowMajor) : values{T(rowMajor)...} {
+    #ifdef COLUMN_MAJOR
+      transposeMajor<T>(values, rows, columns);
+    #endif
+  }
 
-    T values[rows * columns] = {0};
+  T values[rows * columns] = {0};
 
-    void set(unsigned int row, unsigned int column, T value) {
-      #ifdef COLUMN_MAJOR
-        values[column * rows + row] = value;
-      #else
-        values[row * columns + column] = value;
-      #endif
-    }
+  void set(unsigned int row, unsigned int column, T value) {
+    #ifdef COLUMN_MAJOR
+      values[column * rows + row] = value;
+    #else
+      values[row * columns + column] = value;
+    #endif
+  }
 
-    template <const unsigned int bcols>
-    Matrix<rows, bcols, T> operator*(const Matrix<columns, bcols, T>& rhs) {
-      Matrix<rows, bcols, T> result({(T)0});
+  template <const unsigned int bcols>
+  Matrix<rows, bcols, T> operator*(const Matrix<columns, bcols, T>& rhs) {
+    Matrix<rows, bcols, T> result({(T)0});
 
-      for (unsigned int i = 0; i < rows * bcols; i++) {
-        for (unsigned int e = 0; e < columns; e++) {
-          #ifdef COLUMN_MAJOR
-            result.values[i] +=
-              values[e * rows + i % rows] *
-              rhs.values[i / bcols * columns + e];
-          #else
-            result.values[i] += 
-              values[i / bcols * columns + e] * 
-              rhs.values[e * bcols + i % bcols];
-          #endif
-        }
+    for (unsigned int i = 0; i < rows * bcols; i++) {
+      for (unsigned int e = 0; e < columns; e++) {
+        #ifdef COLUMN_MAJOR
+          result.values[i] +=
+            values[e * rows + i % rows] *
+            rhs.values[i / bcols * columns + e];
+        #else
+          result.values[i] += 
+            values[i / bcols * columns + e] * 
+            rhs.values[e * bcols + i % bcols];
+        #endif
       }
-
-      return result;
     }
 
-    template <const unsigned int R, const unsigned int C, typename N>
-    friend std::ostream& operator<<(std::ostream&, const Matrix<R, C, N>&);
+    return result;
+  }
+
+  template <const unsigned int R, const unsigned int C, typename N>
+  friend std::ostream& operator<<(std::ostream&, const Matrix<R, C, N>&);
 };
 
 

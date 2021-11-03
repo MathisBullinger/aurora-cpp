@@ -3,16 +3,13 @@
 #include <string>
 #include <vector>
 
-namespace aur::loader {
+namespace aur::loader::mesh {
 
-class Mesh {
-  public:
-    bool loadOBJ(
-      const std::string& path,
-      std::vector<float>& vertices,
-      std::vector<float>& uvs,
-      std::vector<float>& normals
-    );
-};
+bool loadOBJ(
+  const std::string& path,
+  std::vector<float>& vertices,
+  std::vector<float>& uvs,
+  std::vector<float>& normals
+);
 
 }

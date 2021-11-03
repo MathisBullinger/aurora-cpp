@@ -7,20 +7,20 @@
 namespace aur {
 
 class Renderer {
-  public:
-    Renderer();
-    ~Renderer();
-    void render();
+public:
+  Renderer();
+  ~Renderer();
+  void render();
 
-    void setWireMode(bool on);
+  void setWireMode(bool on);
 
-  private:
-    bool glLogCall(const char* fun, const char* file, unsigned int line);
+private:
+  bool glLogCall(const char* fun, const char* file, unsigned int line);
 
-    unsigned int incr = 0;
-    int mvpID;
+  unsigned int incr = 0;
+  int mvpID;
   
-    Shader* shader = nullptr;
+  Shader* shader = nullptr;
 };
 
 }

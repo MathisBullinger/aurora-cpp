@@ -13,21 +13,21 @@ using namespace std::chrono;
 namespace aur {
 
 class Engine {
-  public:
-    ~Engine();
+public:
+  ~Engine();
   
-    void start();
+  void start();
 
-    Window* openWindow();
-    Window* closeWindow(Window* window);
+  Window* openWindow();
+  Window* closeWindow(Window* window);
   
-  private:
-    void run();
-    void processEvents();
-    void handleEvent(SDL_Event& event);
+private:
+  void run();
+  void processEvents();
+  void handleEvent(SDL_Event& event);
   
-    std::vector<Window*> windows;
-    bool running = false;
+  std::vector<Window*> windows;
+  bool running = false;
 };
 
 }
