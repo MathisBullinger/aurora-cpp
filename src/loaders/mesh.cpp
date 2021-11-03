@@ -1,7 +1,103 @@
 #include "./mesh.hpp"
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <map>
+#include <array>
 
 namespace aur::loader {
+
+class OBJParser {
+public:
+  OBJParser(std::ifstream& stream): file{stream} {};
+
+  void parse() {
+    for (char c; file.get(c);) {
+      if (c == '\n' || c == '#' || isspace(c)) {
+        if (state != SKIP && token.length()) digest();
+        if (c == '#') state = SKIP;
+        else if (c == '\n') state = NEW;
+        token = "";
+      }
+      else token += c;
+    }
+  }
+
+  void assemble(std::vector<float>& outVerts) {
+    for (auto i : vertInd) {
+      if ((i - 1) * 3 + 2 >= vertices.size()) 
+        std::cerr << "vertex index [" << i << "] hasn't been defined\n";
+
+      outVerts.push_back(vertices[(i - 1) * 3]);
+      outVerts.push_back(vertices[(i - 1) * 3 + 1]);
+      outVerts.push_back(vertices[(i - 1) * 3 + 2]);
+    }
+  }
+
+private:
+  void digest() {
+    if (state == NEW) {
+      if (OBJParser::types.find(token) == OBJParser::types.end()) {
+        std::cout << "ignore unknown type " << token << std::endl;
+        state = SKIP;
+      }
+      else {
+        state = OBJParser::types.at(token);
+        elc = 0;
+      }
+    }
+
+    else if (state == V) {
+      vertices.push_back(number<float>(token));
+      std::cout << token << " -> " << vertices[vertices.size() - 1] << std::endl;
+      if (++elc == 3) state = SKIP;
+    }
+
+    else if (state == F) {
+      auto [v, vt, vn] = face();
+      vertInd.push_back(v);
+      if (++elc == 3) state = SKIP;
+    }
+  }
+
+  template <typename T>
+  T number(std::string& str) {
+    if (str.size() == 0 || (str[0] < '0' || str[0] > '9') && str[0] != '-') return 0;
+    return std::stod(str);
+  }
+
+  std::array<int, 3> face() {
+    std::array<int, 3> inds{-1, -1, -1};
+    std::string seg;
+    unsigned int i = 0;
+
+    for (auto c : token + '/') {
+      if (c == '/') {
+        inds[i++] = number<int>(seg);
+        if (i == 3) break;
+      } 
+      else seg += c;
+    }
+    return inds;
+  }
+
+  std::ifstream& file;
+  std::string token;
+
+  enum State { NEW, SKIP, V, F };
+  State state = NEW;
+  unsigned int elc = 0;
+
+  std::vector<float> vertices;
+  std::vector<int> vertInd;
+  static const std::map<std::string, State> types;
+};
+
+const std::map<std::string, OBJParser::State> OBJParser::types = {
+  { "v", V },
+  { "f", F }
+};
 
 bool Mesh::loadOBJ(
   const std::string& path,
@@ -9,57 +105,14 @@ bool Mesh::loadOBJ(
   std::vector<float>& uvs,
   std::vector<float>& normals
 ) {
-  auto file = fopen(path.c_str(), "r");
-  if (!file) {
-    std::cerr << "couldn't read obj file: " << path << std::endl;
+  std::ifstream file(path);
+  if (!file.is_open()) {
+    std::cerr << "couldn't open file: " << path << std::endl;
     return false;
   }
-
-  std::vector<float> verts_;
-  std::vector<float> uvs_;
-  std::vector<float> normals_;
-  std::vector<int> vertInd, uvInd, normInd;
-
-  while (1) {
-    char lineHeader[128];
-    int res = fscanf(file, "%s", lineHeader);
-    if (res == EOF) break;
-
-    if (strcmp(lineHeader, "v") == 0) {
-      verts_.resize(verts_.size() + 3);
-      fscanf(file, "%f %f %f\n", &verts_[verts_.size() - 3], &verts_[verts_.size() - 2], &verts_[verts_.size() - 1]);
-    }
-    else if (strcmp(lineHeader, "vt") == 0) {
-      uvs_.resize(uvs_.size() + 2);
-      fscanf(file, "%f %f\n", &uvs_[uvs_.size() - 2], &uvs_[uvs_.size() - 1]);
-    }
-    else if (strcmp(lineHeader, "vn") == 0) {
-      normals_.resize(normals_.size() + 3);
-      fscanf(file, "%f %f %f\n", &normals_[normals_.size() - 3], &normals_[normals_.size() - 2], &normals_[normals_.size() - 1]);
-    }
-    else if (strcmp(lineHeader, "f") == 0) {
-      unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-      int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
-      if (matches != 9) {
-        std::cerr << "file can't be read" << std::endl;
-        return false;
-      }
-      vertInd.push_back(vertexIndex[0] - 1);
-      vertInd.push_back(vertexIndex[1] - 1);
-      vertInd.push_back(vertexIndex[2] - 1);
-      uvInd.push_back(uvIndex[0] - 1);
-      uvInd.push_back(uvIndex[1] - 1);
-      uvInd.push_back(uvIndex[2] - 1);
-      normInd.push_back(normalIndex[0] - 1);
-      normInd.push_back(normalIndex[1] - 1);
-      normInd.push_back(normalIndex[2] - 1);
-    }
-  }
-
-  for (auto i : vertInd) vertices.insert(vertices.end(), verts_.begin() + i * 3, verts_.begin() + i * 3 + 3);
-  for (auto i : uvInd) uvs.insert(uvs.end(), uvs_.begin() + i * 2, uvs_.begin() + i * 2 + 2);
-  for (auto i : normInd) normals.insert(normals.end(), normals_.begin() + i * 3, normals_.begin() + i * 3 + 3);
-
+  OBJParser parser(file);
+  parser.parse();
+  parser.assemble(vertices);
   return true;
 }
 
