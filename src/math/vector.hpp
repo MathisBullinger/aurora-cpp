@@ -30,6 +30,12 @@ public:
     return result;
   }
 
+  Vector<dimensions, T> operator -() const {
+    Vector<dimensions, T> result;
+    for (unsigned int i = 0; i < dimensions; i++) result[i] = -values[i];
+    return result;
+  }
+
   template <typename N>
   Vector<dimensions, decltype(std::declval<T&>() * std::declval<N&>())> operator *(N n) const {
     Vector<dimensions, decltype(std::declval<T&>() * std::declval<N&>())> result;
@@ -126,6 +132,11 @@ std::ostream& operator<<(std::ostream& os, const Vector<D, N>& target) {
   }
   std::cout << ")";
   return os;
+}
+
+template <const unsigned int D, typename T, typename N>
+Vector<D, decltype(std::declval<T&>() * std::declval<N&>())> operator *(N n, const Vector<D, T>& vec) {
+  return vec * n;
 }
 
 }
