@@ -8,6 +8,8 @@
 
 namespace aur::loader {
 
+using VertexIndex = std::array<unsigned int, 2>;
+
 class OBJParser {
 public:
   OBJParser(
@@ -26,6 +28,9 @@ public:
       }
       else token += c;
     }
+
+    for (const auto& vertex : vertexIndices)
+      indices.push_back(getVertex(vertex));
   }
 
 private:
@@ -42,22 +47,36 @@ private:
     }
 
     else if (state == V) {
-      vertices.push_back(number<float>(token));
+      positions.push_back(number<float>(token));
       if (++elc == 3) state = SKIP;
     }
 
     else if (state == VN) {
-      // normals.push_back(number<float>(token));
+      normals.push_back(number<float>(token));
       if (++elc == 3) state = SKIP;
     }
 
     else if (state == F) {
       auto [v, vt, vn] = face();
-      // vertices.push_back(v-1);
-      // indices.push_back(vn-1);
-      indices.push_back(v - 1);
+      vertexIndices.push_back({ v - 1, vn - 1 });
       if (++elc == 3) state = SKIP;
     }
+  }
+
+  std::map<VertexIndex, unsigned int> vertexMap;
+
+  unsigned int getVertex(const VertexIndex& vertex) {
+    if (!vertexMap.contains(vertex)) {
+      vertexMap.insert({ vertex, vertices.size() / 6 });
+      std::cout << "new vertex: " << vertex[0] << ", " << vertex[1] << std::endl;
+      vertices.push_back(positions[vertex[0] * 3]);
+      vertices.push_back(positions[vertex[0] * 3 + 1]);
+      vertices.push_back(positions[vertex[0] * 3 + 2]);
+      vertices.push_back(normals[vertex[1] * 3]);
+      vertices.push_back(normals[vertex[1] * 3 + 1]);
+      vertices.push_back(normals[vertex[1] * 3 + 2]);
+    }
+    return vertexMap.at(vertex);
   }
 
   template <typename T>
@@ -66,14 +85,14 @@ private:
     return std::stod(str);
   }
 
-  std::array<int, 3> face() {
-    std::array<int, 3> inds{-1, -1, -1};
+  std::array<unsigned int, 3> face() {
+    std::array<unsigned int, 3> inds{0, 0, 0};
     std::string seg;
     unsigned int i = 0;
 
     for (auto c : token + '/') {
       if (c == '/') {
-        inds[i++] = number<int>(seg);
+        inds[i++] = number<unsigned int>(seg);
         seg = "";
         if (i == 3) break;
       } 
@@ -92,6 +111,10 @@ private:
   std::vector<float>& vertices;
   std::vector<unsigned int>& indices;
   static const std::map<std::string, State> types;
+
+  std::vector<float> positions;
+  std::vector<float> normals;
+  std::vector<VertexIndex> vertexIndices;
 };
 
 const std::map<std::string, OBJParser::State> OBJParser::types = {

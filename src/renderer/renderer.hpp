@@ -20,6 +20,7 @@ private:
   bool glLogCall(const char* fun, const char* file, unsigned int line);
 
   int mvpID;
+  int modelID;
 
   std::map<Mesh*, std::vector<Object*>> objects;
   Shader* shader = nullptr;

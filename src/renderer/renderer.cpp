@@ -30,6 +30,7 @@ Renderer::Renderer() {
 	objects[obj].push_back(new Object(*obj));
 
   mvpID = glGetUniformLocation(shader->program, "MVP");
+  modelID = glGetUniformLocation(shader->program, "model");
 
 	// loader::Texture textureLoader;
 	// auto texId = textureLoader.loadBMP("../resources/textures/foo.bmp");
@@ -58,9 +59,10 @@ void Renderer::render() {
 			
 			auto model = matrix::translation(obj->translation) * obj->rotation.matrix() * matrix::scale(obj->scale);
   		auto MVP = projection * view * model;
-			glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP.values[0]);
 
-			// GLC(glDrawArrays(GL_TRIANGLES, 0, obj->mesh.numVertices()));
+			glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP.values[0]);
+			glUniformMatrix4fv(modelID, 1, GL_FALSE, &model.values[0]);
+
 			GLC(glDrawElements(GL_TRIANGLES, obj->mesh.countIndices(), GL_UNSIGNED_INT, (void*)0));
 		}
 	}
