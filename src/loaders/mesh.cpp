@@ -10,7 +10,7 @@ namespace aur::loader {
 
 class OBJParser {
 public:
-  OBJParser(std::ifstream& stream): file{stream} {};
+  OBJParser(std::ifstream& stream, std::vector<float>& verts, std::vector<unsigned int>& inds): file{stream}, vertices{verts}, vertInd{inds} {};
 
   void parse() {
     for (char c; file.get(c);) {
@@ -21,17 +21,6 @@ public:
         token = "";
       }
       else token += c;
-    }
-  }
-
-  void assemble(std::vector<float>& outVerts) {
-    for (auto i : vertInd) {
-      if ((i - 1) * 3 + 2 >= vertices.size()) 
-        std::cerr << "vertex index [" << i << "] hasn't been defined\n";
-
-      outVerts.push_back(vertices[(i - 1) * 3]);
-      outVerts.push_back(vertices[(i - 1) * 3 + 1]);
-      outVerts.push_back(vertices[(i - 1) * 3 + 2]);
     }
   }
 
@@ -55,7 +44,7 @@ private:
 
     else if (state == F) {
       auto [v, vt, vn] = face();
-      vertInd.push_back(v);
+      vertInd.push_back(v-1);
       if (++elc == 3) state = SKIP;
     }
   }
@@ -88,8 +77,8 @@ private:
   State state = NEW;
   unsigned int elc = 0;
 
-  std::vector<float> vertices;
-  std::vector<int> vertInd;
+  std::vector<float>& vertices;
+  std::vector<unsigned int>& vertInd;
   static const std::map<std::string, State> types;
 };
 
@@ -105,16 +94,16 @@ bool loadOBJ(
   const std::string& path,
   std::vector<float>& vertices,
   std::vector<float>& uvs,
-  std::vector<float>& normals
+  std::vector<float>& normals,
+  std::vector<unsigned int>& indices
 ) {
   std::ifstream file(path);
   if (!file.is_open()) {
     std::cerr << "couldn't open file: " << path << std::endl;
     return false;
   }
-  OBJParser parser(file);
+  OBJParser parser(file, vertices, indices);
   parser.parse();
-  parser.assemble(vertices);
   return true;
 }
 

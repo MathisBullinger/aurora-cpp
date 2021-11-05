@@ -19,24 +19,19 @@ Renderer::Renderer() {
 	GLC(glDepthFunc(GL_LESS));
 	setWireMode(true);
 
-	auto teapot = new Mesh("../resources/meshes/teapot.obj");
-	objects[teapot] = std::vector<Object*>{};
-	objects[teapot].push_back(new Object(*teapot));
-
-	objects[teapot].back()->translation[0] += 2;
-	objects[teapot].back()->scale /= 3;
-	objects[teapot].back()->scale[1] *= 2.5;
-
-  shader = new Shader("../resources/shaders/basic.vert", "../resources/shaders/basic.frag");
-  shader->use();
-
 	unsigned int vao;
   GLC(glGenVertexArrays(1, &vao));
   GLC(glBindVertexArray(vao));
 
+	auto teapot = new Mesh("../resources/meshes/teapot.obj");
+	objects[teapot] = std::vector<Object*>{};
+	objects[teapot].push_back(new Object(*teapot));
+
+  shader = new Shader("../resources/shaders/basic.vert", "../resources/shaders/basic.frag");
+  shader->use();
+
 	GLC(glEnableVertexAttribArray(0));
 	GLC(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0));
-
 
   mvpID = glGetUniformLocation(shader->program, "MVP");
 
@@ -54,13 +49,13 @@ Renderer::~Renderer() {
 };
 
 void Renderer::render() {
-	incr++;
-	float dist = 10;
-	float x = sin(incr / 100.f) * dist;
-	float z = cos(incr / 100.f) * dist;
-	float y = sin(incr / 166.f) * (dist / 4) + 0;
+	// incr++;
+	// float dist = 10;
+	// float x = sin(incr / 100.f) * dist;
+	// float z = cos(incr / 100.f) * dist;
+	// float y = sin(incr / 166.f) * (dist / 4) + 0;
 	
-	auto view = aur::lookAt({x, y, z}, {.5, 1, 0}, {0, 1, 0});
+	auto view = aur::lookAt({0, 1, -10}, {.5, 1, 0}, {0, 1, 0});
   auto projection = aur::perspective(800.f/600, M_PI / 4, 0.1f, 1000.f);
 
 	auto rotAx = vec3<float>{1,1,0}.normal();
@@ -75,7 +70,8 @@ void Renderer::render() {
   		auto MVP = projection * view * model;
 			glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP.values[0]);
 
-			GLC(glDrawArrays(GL_TRIANGLES, 0, obj->mesh.numVertices()));
+			// GLC(glDrawArrays(GL_TRIANGLES, 0, obj->mesh.numVertices()));
+			GLC(glDrawElements(GL_TRIANGLES, obj->mesh.countIndices(), GL_UNSIGNED_INT, (void*)0));
 		}
 	}
 	
