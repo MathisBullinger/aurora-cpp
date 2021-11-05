@@ -10,7 +10,11 @@ namespace aur::loader {
 
 class OBJParser {
 public:
-  OBJParser(std::ifstream& stream, std::vector<float>& verts, std::vector<unsigned int>& inds): file{stream}, vertices{verts}, vertInd{inds} {};
+  OBJParser(
+    std::ifstream& stream, 
+    std::vector<float>& vertices,
+    std::vector<unsigned int>& indices
+  ): file{stream}, vertices{vertices}, indices{indices} {};
 
   void parse() {
     for (char c; file.get(c);) {
@@ -42,9 +46,16 @@ private:
       if (++elc == 3) state = SKIP;
     }
 
+    else if (state == VN) {
+      // normals.push_back(number<float>(token));
+      if (++elc == 3) state = SKIP;
+    }
+
     else if (state == F) {
       auto [v, vt, vn] = face();
-      vertInd.push_back(v-1);
+      // vertices.push_back(v-1);
+      // indices.push_back(vn-1);
+      indices.push_back(v - 1);
       if (++elc == 3) state = SKIP;
     }
   }
@@ -63,6 +74,7 @@ private:
     for (auto c : token + '/') {
       if (c == '/') {
         inds[i++] = number<int>(seg);
+        seg = "";
         if (i == 3) break;
       } 
       else seg += c;
@@ -73,30 +85,25 @@ private:
   std::ifstream& file;
   std::string token;
 
-  enum State { NEW, SKIP, V, F };
+  enum State { NEW, SKIP, V, VN, F };
   State state = NEW;
   unsigned int elc = 0;
 
   std::vector<float>& vertices;
-  std::vector<unsigned int>& vertInd;
+  std::vector<unsigned int>& indices;
   static const std::map<std::string, State> types;
 };
 
 const std::map<std::string, OBJParser::State> OBJParser::types = {
   { "v", V },
+  { "vn", VN },
   { "f", F }
 };
 
 
 namespace mesh {
 
-bool loadOBJ(
-  const std::string& path,
-  std::vector<float>& vertices,
-  std::vector<float>& uvs,
-  std::vector<float>& normals,
-  std::vector<unsigned int>& indices
-) {
+bool loadOBJ(const std::string& path, std::vector<float>& vertices, std::vector<unsigned int>& indices) {
   std::ifstream file(path);
   if (!file.is_open()) {
     std::cerr << "couldn't open file: " << path << std::endl;

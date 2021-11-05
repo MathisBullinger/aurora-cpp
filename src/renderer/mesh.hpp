@@ -1,25 +1,26 @@
 #pragma once
 
 #include <string>
-#include <vector>
-#include "math/vector.hpp"
+#include "renderer/vertexBuffer.hpp"
+#include "renderer/indexBuffer.hpp"
 
 namespace aur {
 
 class Mesh {
 public:
   Mesh(const std::string& path);
-  int countVertices() const;
+  ~Mesh();
+  
   int countIndices() const;
 
 private:
-  std::vector<float> vertices;
-	std::vector<float> uvs;
-	std::vector<float> normals;
-	std::vector<unsigned int> indices;
-
   unsigned int vbo;
   unsigned int ebo;
+  unsigned int nbo;
+  unsigned int ebo2;
+
+  VertexBuffer* vertexBuffer = nullptr;
+  IndexBuffer* indexBuffer = nullptr;
 };
   
 }

@@ -19,7 +19,6 @@ public:
 private:
   bool glLogCall(const char* fun, const char* file, unsigned int line);
 
-  unsigned int incr = 0;
   int mvpID;
 
   std::map<Mesh*, std::vector<Object*>> objects;

@@ -17,21 +17,17 @@ namespace aur {
 Renderer::Renderer() {
 	GLC(glEnable(GL_DEPTH_TEST));
 	GLC(glDepthFunc(GL_LESS));
-	setWireMode(true);
+
+	shader = new Shader("../resources/shaders/basic.vert", "../resources/shaders/basic.frag");
+  shader->use();
 
 	unsigned int vao;
   GLC(glGenVertexArrays(1, &vao));
   GLC(glBindVertexArray(vao));
 
-	auto teapot = new Mesh("../resources/meshes/teapot.obj");
-	objects[teapot] = std::vector<Object*>{};
-	objects[teapot].push_back(new Object(*teapot));
-
-  shader = new Shader("../resources/shaders/basic.vert", "../resources/shaders/basic.frag");
-  shader->use();
-
-	GLC(glEnableVertexAttribArray(0));
-	GLC(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0));
+	auto obj = new Mesh("../resources/meshes/box.obj");
+	objects[obj] = std::vector<Object*>{};
+	objects[obj].push_back(new Object(*obj));
 
   mvpID = glGetUniformLocation(shader->program, "MVP");
 
@@ -49,16 +45,10 @@ Renderer::~Renderer() {
 };
 
 void Renderer::render() {
-	// incr++;
-	// float dist = 10;
-	// float x = sin(incr / 100.f) * dist;
-	// float z = cos(incr / 100.f) * dist;
-	// float y = sin(incr / 166.f) * (dist / 4) + 0;
-	
-	auto view = aur::lookAt({0, 1, -10}, {.5, 1, 0}, {0, 1, 0});
+	auto view = aur::lookAt({0, 4, -8}, {0, 1.5, 0}, {0, 1, 0});
   auto projection = aur::perspective(800.f/600, M_PI / 4, 0.1f, 1000.f);
 
-	auto rotAx = vec3<float>{1,1,0}.normal();
+	auto rotAx = vec3<float>{0,1,0}.normal();
 	
 	for (auto [mesh, objs] : objects) {
 		// TODO: bind mesh
