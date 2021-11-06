@@ -2,9 +2,7 @@
 
 #include "shader.hpp"
 #include "renderer/mesh.hpp"
-#include "renderer/object.hpp"
-#include <vector>
-#include <map>
+#include "renderer/scene.hpp"
 
 namespace aur {
 
@@ -12,12 +10,13 @@ class Renderer {
 public:
   Renderer();
   ~Renderer();
-  void render();
 
+  void render();
   void setWireMode(bool on);
 
 private:
-  std::map<Mesh*, std::vector<Object*>> objects;
+  Scene scene;
+  Mesh* boxMesh = nullptr;
 };
 
 }

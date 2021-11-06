@@ -56,6 +56,7 @@ unsigned int Shader::compile(unsigned int type, const std::string& source) {
 
 std::string Shader::read(const std::string& path) {
   std::ifstream input(path);
+  if (!input) throw std::runtime_error("couldn't read path "+ path);
   std::stringstream ss;
   ss << input.rdbuf();
   return ss.str();

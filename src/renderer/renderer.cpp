@@ -2,7 +2,6 @@
 #include "math/matrix.hpp"
 #include "math/vector.hpp"
 #include "math/quaternion.hpp"
-#include "./viewUtil.hpp"
 #include "util/gl.hpp"
 #include <iostream>
 #include <cmath>
@@ -18,15 +17,18 @@ Renderer::Renderer() {
 	GLC(glEnable(GL_DEPTH_TEST));
 	GLC(glDepthFunc(GL_LESS));
 
-	Shader::get("basic.vert", "basic.frag")->use();
+	auto shader = Shader::get("basic.vert", "basic.frag");
+	shader->use();
 
 	unsigned int vao;
   GLC(glGenVertexArrays(1, &vao));
   GLC(glBindVertexArray(vao));
 
-	auto obj = new Mesh("../resources/meshes/box.obj");
-	objects[obj] = std::vector<Object*>{};
-	objects[obj].push_back(new Object(*obj));
+	boxMesh = new Mesh("../resources/meshes/box.obj");
+
+	scene.addObject(shader, boxMesh, {0,0,0}, {1,1,1}, {});
+	scene.addObject(shader, boxMesh, {-3,0,0}, {1,1,1}, {});
+	scene.addObject(shader, boxMesh, {3,0,0}, {1,1,1}, {});
 
 	// loader::Texture textureLoader;
 	// auto texId = textureLoader.loadBMP("../resources/textures/foo.bmp");
@@ -34,36 +36,12 @@ Renderer::Renderer() {
 }
 
 Renderer::~Renderer() {
-	for (auto [mesh, objs] : objects) {
-	  delete mesh;
-		for (auto obj : objs) delete obj;
-	}
 	Shader::deleteShaders();
+	delete boxMesh;
 };
 
 void Renderer::render() {
-	auto view = aur::lookAt({0, 4, -8}, {0, 1.5, 0}, {0, 1, 0});
-  auto projection = aur::perspective(800.f/600, M_PI / 4, 0.1f, 1000.f);
-
-	auto rotAx = vec3<float>{0,1,0}.normal();
-
-	auto shader = Shader::get("basic.vert", "basic.frag");
-	
-	for (auto [mesh, objs] : objects) {
-		// TODO: bind mesh
-
-		for (auto obj : objs) {
-			obj->rotation = Quaternion{rotAx, 0.01} * obj->rotation;
-			
-			auto model = matrix::translation(obj->translation) * obj->rotation.matrix() * matrix::scale(obj->scale);
-  		auto MVP = projection * view * model;
-
-			shader->setUniformMatrix("MVP", MVP);
-			shader->setUniformMatrix("model", model);
-
-			GLC(glDrawElements(GL_TRIANGLES, obj->mesh.countIndices(), GL_UNSIGNED_INT, (void*)0));
-		}
-	}
+	scene.render();
 }
 
 void Renderer::setWireMode(bool on) {
