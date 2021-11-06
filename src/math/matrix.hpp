@@ -10,6 +10,13 @@
 
 namespace aur {
 
+namespace matrix {
+struct Index {
+  unsigned int row;
+  unsigned int column;
+};
+}
+
 template <const unsigned int rows, const unsigned int columns, typename T = double>
 class Matrix {
 public:
@@ -27,11 +34,19 @@ public:
 
   T values[rows * columns] = {0};
 
-  void set(unsigned int row, unsigned int column, T value) {
+  T operator [](const matrix::Index& i) const {
     #ifdef COLUMN_MAJOR
-      values[column * rows + row] = value;
+      return values[i.column * rows + i.row];
     #else
-      values[row * columns + column] = value;
+      return values[i.row * columns + i.column];
+    #endif
+  }
+
+  T& operator [](const matrix::Index& i) {
+    #ifdef COLUMN_MAJOR
+      return values[i.column * rows + i.row];
+    #else
+      return values[i.row * columns + i.column];
     #endif
   }
 
@@ -52,6 +67,17 @@ public:
         #endif
       }
     }
+
+    return result;
+  }
+
+  template <typename N>
+  Vector<rows, decltype(std::declval<T&>() * std::declval<N&>())> operator *(const Vector<columns, N>& vector) const {
+    Vector<rows, decltype(std::declval<T&>() * std::declval<N&>())> result;
+
+    for (unsigned int r = 0; r < rows; r++)
+      for (unsigned int c = 0; c < columns; c++)
+        result[r] += (*this)[{r,c}] * vector[c];
 
     return result;
   }
