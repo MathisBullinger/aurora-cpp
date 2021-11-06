@@ -37,7 +37,6 @@ private:
   void digest() {
     if (state == NEW) {
       if (OBJParser::types.find(token) == OBJParser::types.end()) {
-        std::cout << "ignore unknown type " << token << std::endl;
         state = SKIP;
       }
       else {
@@ -68,7 +67,6 @@ private:
   unsigned int getVertex(const VertexIndex& vertex) {
     if (!vertexMap.contains(vertex)) {
       vertexMap.insert({ vertex, vertices.size() / 6 });
-      std::cout << "new vertex: " << vertex[0] << ", " << vertex[1] << std::endl;
       vertices.push_back(positions[vertex[0] * 3]);
       vertices.push_back(positions[vertex[0] * 3 + 1]);
       vertices.push_back(positions[vertex[0] * 3 + 2]);

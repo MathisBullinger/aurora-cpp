@@ -18,8 +18,7 @@ Renderer::Renderer() {
 	GLC(glEnable(GL_DEPTH_TEST));
 	GLC(glDepthFunc(GL_LESS));
 
-	shader = new Shader("../resources/shaders/basic.vert", "../resources/shaders/basic.frag");
-  shader->use();
+	Shader::get("basic.vert", "basic.frag")->use();
 
 	unsigned int vao;
   GLC(glGenVertexArrays(1, &vao));
@@ -28,9 +27,6 @@ Renderer::Renderer() {
 	auto obj = new Mesh("../resources/meshes/box.obj");
 	objects[obj] = std::vector<Object*>{};
 	objects[obj].push_back(new Object(*obj));
-
-  mvpID = glGetUniformLocation(shader->program, "MVP");
-  modelID = glGetUniformLocation(shader->program, "model");
 
 	// loader::Texture textureLoader;
 	// auto texId = textureLoader.loadBMP("../resources/textures/foo.bmp");
@@ -42,7 +38,7 @@ Renderer::~Renderer() {
 	  delete mesh;
 		for (auto obj : objs) delete obj;
 	}
-  delete shader;
+	Shader::deleteShaders();
 };
 
 void Renderer::render() {
@@ -50,6 +46,8 @@ void Renderer::render() {
   auto projection = aur::perspective(800.f/600, M_PI / 4, 0.1f, 1000.f);
 
 	auto rotAx = vec3<float>{0,1,0}.normal();
+
+	auto shader = Shader::get("basic.vert", "basic.frag");
 	
 	for (auto [mesh, objs] : objects) {
 		// TODO: bind mesh
@@ -60,14 +58,12 @@ void Renderer::render() {
 			auto model = matrix::translation(obj->translation) * obj->rotation.matrix() * matrix::scale(obj->scale);
   		auto MVP = projection * view * model;
 
-			glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP.values[0]);
-			glUniformMatrix4fv(modelID, 1, GL_FALSE, &model.values[0]);
+			shader->setUniformMatrix("MVP", MVP);
+			shader->setUniformMatrix("model", model);
 
 			GLC(glDrawElements(GL_TRIANGLES, obj->mesh.countIndices(), GL_UNSIGNED_INT, (void*)0));
 		}
 	}
-	
-
 }
 
 void Renderer::setWireMode(bool on) {

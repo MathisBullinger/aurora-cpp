@@ -6,6 +6,11 @@
 
 namespace aur {
 
+struct Vertex {
+  float position[3];
+  float normal[3];
+};
+
 Mesh::Mesh(const std::string& path) {
   std::vector<float> vertices;
   std::vector<unsigned int> indices;
@@ -15,10 +20,10 @@ Mesh::Mesh(const std::string& path) {
   indexBuffer = new IndexBuffer(&indices[0], indices.size());
 
   GLC(glEnableVertexAttribArray(0));
-	GLC(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0));
+	GLC(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position)));
 
   GLC(glEnableVertexAttribArray(1));
-	GLC(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))));
+	GLC(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal)));
 }
 
 Mesh::~Mesh() {
