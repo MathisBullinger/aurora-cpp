@@ -24,9 +24,9 @@ public:
     for (unsigned char i = 0; i < std::min(rows, columns); i++)
       values[i * columns + i] = 1;
   }
-    
+
   template <typename... U>
-  Matrix(U... rowMajor) : values{T(rowMajor)...} {
+  Matrix(U... rowMajor) : values{(T)rowMajor...} {
     #ifdef COLUMN_MAJOR
       transposeMajor<T>(values, rows, columns);
     #endif
@@ -39,7 +39,7 @@ public:
         (*this)[{r,c}] = source[{r, c}];
   }
 
-  T values[rows * columns] = {0};
+  T values[rows * columns] = {};
 
   T operator [](const matrix::Index& i) const {
     #ifdef COLUMN_MAJOR
@@ -115,16 +115,13 @@ public:
   }
 
   T determinant() const requires (rows == columns) {
-    if (rows == 2) return at(0,0) * at(1,1) - at(0,1) * at(1,0);
-
-    T res = 0;
-    for (unsigned int i = 0; i < columns; i++) {
-      auto sub = remove(0, i);
-      auto sd = at(0, i) * ((Matrix<2,2,T>*)(void*)&sub)->determinant();
-      if (i % 2) res -= sd;
-      else res += sd;
+    if constexpr (rows <= 2) return at(0,0) * at(1,1) - at(0,1) * at(1,0);
+    else {
+      T n = 0;
+      for (unsigned int i = 0; i < columns; i++)
+        n += at(0, i) * remove(0, i).determinant() * (i % 2 ? -1 : 1);
+      return n;
     }
-    return res;
   }
 
   Matrix<rows - 1, columns - 1, T> remove(unsigned int row, unsigned int column) const {

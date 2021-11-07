@@ -29,4 +29,11 @@ TEST(Matrix, determinant) {
      3,  0,  1,
     -5,  4,  2
   }).determinant(), -38);
+
+  ASSERT_EQ((Matrix<4, 4>{
+     1, -2,  9,  6,
+     2,  3, -4,  2,
+     4,  0,  1,  2,
+     5,  1,  0,  8
+  }).determinant(), -338);
 }
