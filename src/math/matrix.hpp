@@ -17,7 +17,7 @@ struct Index {
 };
 }
 
-template <const unsigned int rows, const unsigned int columns, typename T = double>
+template <unsigned int rows, unsigned int columns, typename T = double>
 class Matrix {
 public:
   Matrix() {
@@ -30,6 +30,13 @@ public:
     #ifdef COLUMN_MAJOR
       transposeMajor<T>(values, rows, columns);
     #endif
+  }
+
+  template <unsigned int R, unsigned C, typename S>
+  Matrix(const Matrix<R, C, S>& source) {
+    for (unsigned int r = 0; r < std::min(rows, R); r++) 
+      for (unsigned int c = 0; c < std::min(columns, C); c++)
+        (*this)[{r,c}] = source[{r, c}];
   }
 
   T values[rows * columns] = {0};
@@ -50,7 +57,15 @@ public:
     #endif
   }
 
-  template <const unsigned int bcols>
+  T at(const unsigned int row, const unsigned int column) const {
+    #ifdef COLUMN_MAJOR
+      return values[column * rows + row];
+    #else
+      return values[row * columns + column];
+    #endif
+  }
+
+  template <unsigned int bcols>
   Matrix<rows, bcols, T> operator*(const Matrix<columns, bcols, T>& rhs) {
     Matrix<rows, bcols, T> result({(T)0});
 
@@ -77,43 +92,61 @@ public:
 
     for (unsigned int r = 0; r < rows; r++)
       for (unsigned int c = 0; c < columns; c++)
-        result[r] += (*this)[{r,c}] * vector[c];
+        result[r] += at(r, c) * vector[c];
 
     return result;
   }
 
-  template <const unsigned int R, const unsigned int C, typename N>
+  template <typename N>
+  Matrix<rows, columns, decltype(std::declval<T&>() * std::declval<N&>())> operator *(N n) const {
+    Matrix<rows, columns, decltype(std::declval<T&>() * std::declval<N&>())> result;
+
+    for (unsigned int r = 0; r < rows; r++)
+      for (unsigned int c = 0; c < columns; c++)
+        result[{r,c}] = at(r, c) * n;
+
+    return result;
+  }
+
+
+  template <unsigned int R, unsigned int C>
+  Matrix<R, C, T> resize() const {
+    return *this;
+  }
+
+  T determinant() const requires (rows == columns) {
+    if (rows == 2) return at(0,0) * at(1,1) - at(0,1) * at(1,0);
+
+    T res = 0;
+    for (unsigned int i = 0; i < columns; i++) {
+      auto sub = remove(0, i);
+      auto sd = at(0, i) * ((Matrix<2,2,T>*)(void*)&sub)->determinant();
+      if (i % 2) res -= sd;
+      else res += sd;
+    }
+    return res;
+  }
+
+  Matrix<rows - 1, columns - 1, T> remove(unsigned int row, unsigned int column) const {
+    Matrix<rows - 1, columns - 1, T> sub{0};
+
+    for (unsigned int r = 0; r < rows - 1; r++)
+      for (unsigned int c = 0; c < columns - 1; c++)
+        sub[{r, c}] = at(r < row ? r : r + 1, c < column ? c : c + 1);
+
+    return sub;
+  }
+
+  template <unsigned int R, unsigned int C, typename N>
   friend std::ostream& operator<<(std::ostream&, const Matrix<R, C, N>&);
 };
 
-
-namespace matrix {
-
-template <typename T>
-static Matrix<4, 4, T> translation(const vec3<T>& vec) {
-  auto& [x, y, z] = vec;
-  return {
-    1, 0, 0, x,
-    0, 1, 0, y,
-    0, 0, 1, z,
-    0, 0, 0, 1
-  };
+template <unsigned int R, unsigned int C, typename T, typename N>
+auto operator *(N n, const Matrix<R, C, T>& matrix) {
+  return matrix * n;
 }
 
-template <typename T>
-static Matrix<4, 4, T> scale(const vec3<T>& vec) {
-  auto& [x, y, z] = vec;
-  return {
-    x, 0, 0, 0,
-    0, y, 0, 0,
-    0, 0, z, 0,
-    0, 0, 0, 1,
-  };
-}
-
-}
-
-template <const unsigned int R, const unsigned int C, typename N>
+template <unsigned int R, unsigned int C, typename N>
 std::ostream& operator<<(std::ostream& os, const Matrix<R, C, N>& target) {
   os << R << "x" << C << " Matrix <" << typeid(N).name() << ">";
 
