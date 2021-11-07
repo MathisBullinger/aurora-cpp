@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <type_traits>
 #include "util/array.hpp"
 #include "math/vector.hpp"
 
@@ -17,7 +18,7 @@ struct Index {
 };
 }
 
-template <unsigned int rows, unsigned int columns, typename T = double>
+template <unsigned int rows, unsigned int columns, typename T = float>
 class Matrix {
 public:
   Matrix() {
@@ -124,14 +125,35 @@ public:
     }
   }
 
+  template <typename N = T>
+  auto inverse() const requires (rows == columns) {
+    auto d = determinant();
+    assert(d != 0);
+    Matrix<columns, rows, typename std::conditional<std::is_floating_point<N>::value, N, float>::type> adjugate{0};
+
+    for (unsigned int r = 0; r < rows; r++)
+      for (unsigned int c = 0; c < columns; c++)
+        adjugate[{c,r}] = remove(r, c).determinant() * ((r % 2 + c % 2) % 2 ? -1 : 1);
+
+    return 1 / d * adjugate;
+  }
+
   Matrix<rows - 1, columns - 1, T> remove(unsigned int row, unsigned int column) const {
     Matrix<rows - 1, columns - 1, T> sub{0};
 
     for (unsigned int r = 0; r < rows - 1; r++)
       for (unsigned int c = 0; c < columns - 1; c++)
-        sub[{r, c}] = at(r < row ? r : r + 1, c < column ? c : c + 1);
+        sub[{r,c}] = at(r < row ? r : r + 1, c < column ? c : c + 1);
 
     return sub;
+  }
+
+  Matrix<columns, rows, T> transpose() const {
+    Matrix<columns, rows, T> result{0};
+    for (unsigned int r = 0; r < rows; r++)
+      for (unsigned int c = 0; c < rows; c++)
+        result[{c,r}] = at(r, c);
+    return result;
   }
 
   template <unsigned int R, unsigned int C, typename N>
