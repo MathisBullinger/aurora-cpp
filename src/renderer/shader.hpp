@@ -9,6 +9,7 @@
 #include <map>
 #include <filesystem>
 #include "math/matrix.hpp"
+#include "math/vector.hpp"
 
 namespace aur {
 
@@ -25,7 +26,9 @@ public:
   static void deleteShaders();
 
   int getUniform(const std::string& name);
-  void setUniformMatrix(const std::string& name, const Matrix<4, 4, float>& matrix);
+  void setUniform(const std::string& name, const Matrix<3, 3, float>& matrix);
+  void setUniform(const std::string& name, const Matrix<4, 4, float>& matrix);
+  void setUniform(const std::string& name, const vec3<float>& vector);
 private:
   const unsigned int program;
   std::map<std::string, int> uniformIds;

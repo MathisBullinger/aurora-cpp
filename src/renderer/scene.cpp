@@ -5,22 +5,34 @@
 namespace aur {
 
 void Scene::render() {
-  auto view = aur::lookAt({0, 4, -8}, {0, 1.5, 0}, {0, 1, 0});
+  auto view = aur::lookAt({3, 2, 8}, {0, 0, 0}, {0, 1, 0});
   auto projection = aur::perspective(800.f/600, M_PI / 4, 0.1f, 1000.f);
   auto VP = projection * view;
-  
+
   for (auto& [shader, meshes] : renderGraph) {
     shader->use();
+
+    shader->setUniform("view", view);
+
+    Vector<4, float> lightPos{-8, 3, 8, 1};
+    
+    shader->setUniform("lightPos", lightPos.fit<3>());
+    shader->setUniform("lightPosCamSpace", (view * lightPos).fit<3>());
 
     for (auto& [mesh, objects] : meshes) {
       // ...bind mesh
 
+      auto i = 0;
       for (auto& obj : objects) {
+        obj.rotate({{0, 1, 0}, (float)0.01 * (1 + i++ / 3.f)});
+        
         auto model = obj.getModel();
         auto MVP = VP * model;
+        auto normal = (Matrix<3, 3>(view) * Matrix<3, 3>(model)).inverse().transpose();
 
-        shader->setUniformMatrix("MVP", MVP);
-        shader->setUniformMatrix("model", model);
+        shader->setUniform("MVP", MVP);
+        shader->setUniform("model", model);
+        shader->setUniform("normal", normal);
 
         GLC(glDrawElements(GL_TRIANGLES, mesh->countIndices(), GL_UNSIGNED_INT, 0));
       }
@@ -39,14 +51,19 @@ void Scene::addObject(
 }
 
 Object::Object(vec3<float> translation, vec3<float> scale, Quaternion rotation)
-  : translation{translation}, scale{scale}, rotation{rotation} {}
+  : translation_{translation}, scale_{scale}, rotation_{rotation} {}
 
 const Matrix<4, 4, float>& Object::getModel() {
-  if (dirty) {
-    model = matrix::translation(translation) * rotation.matrix() * matrix::scale(scale);
-    dirty = false;
+  if (dirty_) {
+    model_ = transform::translate(translation_) * rotation_.matrix() * transform::scale(scale_);
+    dirty_ = false;
   }
-  return model;
+  return model_;
+}
+
+void Object::rotate(const Quaternion& rotation) {
+  rotation_ = rotation * rotation_;
+  dirty_ = true;
 }
 
 }

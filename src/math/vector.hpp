@@ -5,6 +5,7 @@
 #include <utility>
 #include <iostream>
 #include <tuple>
+#include <type_traits>
 
 namespace aur {
 
@@ -62,6 +63,13 @@ public:
   Vector<dimensions, T>& operator /=(N n) {
     for (unsigned int i = 0; i < dimensions; i++) values[i] /= n;
     return *this;
+  }
+
+  template <unsigned int D> 
+  Vector<D, T> fit() {
+    Vector<D, T> result;
+    for (unsigned int i = 0; i < std::min(D, dimensions); i++) result[i] = values[i];
+    return result;
   }
 
   T operator [](unsigned int i) const {
@@ -134,7 +142,7 @@ std::ostream& operator<<(std::ostream& os, const Vector<D, N>& target) {
   return os;
 }
 
-template <const unsigned int D, typename T, typename N>
+template <const unsigned int D, typename T, typename N> requires std::is_arithmetic<N>::value
 Vector<D, decltype(std::declval<T&>() * std::declval<N&>())> operator *(N n, const Vector<D, T>& vec) {
   return vec * n;
 }

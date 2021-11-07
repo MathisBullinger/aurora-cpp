@@ -4,6 +4,7 @@
 #include <string>
 #include <cmath>
 #include <type_traits>
+#include <concepts>
 #include "util/array.hpp"
 #include "math/vector.hpp"
 
@@ -98,7 +99,7 @@ public:
     return result;
   }
 
-  template <typename N>
+  template <typename N> requires std::is_arithmetic<N>::value
   Matrix<rows, columns, decltype(std::declval<T&>() * std::declval<N&>())> operator *(N n) const {
     Matrix<rows, columns, decltype(std::declval<T&>() * std::declval<N&>())> result;
 
@@ -160,7 +161,7 @@ public:
   friend std::ostream& operator<<(std::ostream&, const Matrix<R, C, N>&);
 };
 
-template <unsigned int R, unsigned int C, typename T, typename N>
+template <unsigned int R, unsigned int C, typename T, typename N> requires std::is_arithmetic<N>::value
 auto operator *(N n, const Matrix<R, C, T>& matrix) {
   return matrix * n;
 }

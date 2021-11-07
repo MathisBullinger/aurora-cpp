@@ -8,7 +8,7 @@
 
 namespace aur::loader {
 
-using VertexIndex = std::array<unsigned int, 2>;
+using VertexIndex = std::array<unsigned int, 3>;
 
 class OBJParser {
 public:
@@ -47,17 +47,22 @@ private:
 
     else if (state == V) {
       positions.push_back(number<float>(token));
-      if (++elc == 3) state = SKIP;
+      if (++elc >= 3) state = SKIP;
     }
 
     else if (state == VN) {
       normals.push_back(number<float>(token));
-      if (++elc == 3) state = SKIP;
+      if (++elc >= 3) state = SKIP;
+    }
+
+    else if (state == VT) {
+      uvs.push_back(number<float>(token));
+      if (++elc >= 2) state = SKIP;
     }
 
     else if (state == F) {
       auto [v, vt, vn] = face();
-      vertexIndices.push_back({ v - 1, vn - 1 });
+      vertexIndices.push_back({ v - 1, vn - 1, vt - 1 });
       if (++elc == 3) state = SKIP;
     }
   }
@@ -66,13 +71,15 @@ private:
 
   unsigned int getVertex(const VertexIndex& vertex) {
     if (!vertexMap.contains(vertex)) {
-      vertexMap.insert({ vertex, vertices.size() / 6 });
+      vertexMap.insert({ vertex, vertices.size() / 8 });
       vertices.push_back(positions[vertex[0] * 3]);
       vertices.push_back(positions[vertex[0] * 3 + 1]);
       vertices.push_back(positions[vertex[0] * 3 + 2]);
       vertices.push_back(normals[vertex[1] * 3]);
       vertices.push_back(normals[vertex[1] * 3 + 1]);
       vertices.push_back(normals[vertex[1] * 3 + 2]);
+      vertices.push_back(uvs[vertex[2] * 2]);
+      vertices.push_back(uvs[vertex[2] * 2 + 1]);
     }
     return vertexMap.at(vertex);
   }
@@ -102,7 +109,7 @@ private:
   std::ifstream& file;
   std::string token;
 
-  enum State { NEW, SKIP, V, VN, F };
+  enum State { NEW, SKIP, V, VN, VT, F };
   State state = NEW;
   unsigned int elc = 0;
 
@@ -112,12 +119,14 @@ private:
 
   std::vector<float> positions;
   std::vector<float> normals;
+  std::vector<float> uvs;
   std::vector<VertexIndex> vertexIndices;
 };
 
 const std::map<std::string, OBJParser::State> OBJParser::types = {
   { "v", V },
   { "vn", VN },
+  { "vt", VT },
   { "f", F }
 };
 

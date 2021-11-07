@@ -12,7 +12,7 @@ Window::Window() {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
-  window = SDL_CreateWindow("Aurora", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_OPENGL);
+  window = SDL_CreateWindow("Aurora", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1200, 900, SDL_WINDOW_OPENGL);
   if (!window) throw runtime_error(string("couldn't open window: ") + SDL_GetError());
 
   context = SDL_GL_CreateContext(window);
@@ -23,7 +23,7 @@ Window::Window() {
   if (glew_status != GLEW_OK) 
     throw runtime_error(std::string("couldn't init glew: ") + reinterpret_cast<const char*>(glewGetErrorString(glew_status)));
 
-  glClearColor(1.f, 1.f, 1.f, 1.f);
+  glClearColor(0, 0, 0, 1);
 }
 
 Window::~Window() {

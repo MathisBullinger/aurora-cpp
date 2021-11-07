@@ -98,13 +98,23 @@ std::string Shader::basePath() {
 }
 
 int Shader::getUniform(const std::string& name) {
-  if (!uniformIds.contains(name)) return uniformIds[name];
+  if (uniformIds.contains(name)) return uniformIds[name];
   return uniformIds[name] = glGetUniformLocation(program, name.c_str());
 }
 
-void Shader::setUniformMatrix(const std::string& name, const Matrix<4, 4, float>& matrix) {
+void Shader::setUniform(const std::string& name, const Matrix<4, 4, float>& matrix) {
   assert(currentProgram == program);
-  glUniformMatrix4fv(getUniform(name), 1, GL_FALSE, &matrix.values[0]);
+  GLC(glUniformMatrix4fv(getUniform(name), 1, GL_FALSE, &matrix.values[0]));
+}
+
+void Shader::setUniform(const std::string& name, const Matrix<3, 3, float>& matrix) {
+  assert(currentProgram == program);
+  GLC(glUniformMatrix3fv(getUniform(name), 1, GL_FALSE, &matrix.values[0]));
+}
+
+void Shader::setUniform(const std::string& name, const vec3<float>& vector) {
+  assert(currentProgram == program);
+  GLC(glUniform3fv(getUniform(name), 1, &vector.values[0]));
 }
 
 }

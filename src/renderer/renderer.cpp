@@ -14,34 +14,34 @@
 namespace aur {
 
 Renderer::Renderer() {
-	GLC(glEnable(GL_DEPTH_TEST));
-	GLC(glDepthFunc(GL_LESS));
+  GLC(glEnable(GL_DEPTH_TEST));
+  GLC(glDepthFunc(GL_LESS));
 
-	auto shader = Shader::get("basic.vert", "basic.frag");
-	shader->use();
+  auto shader = Shader::get("basic.vert", "basic.frag");
+  shader->use();
 
-	unsigned int vao;
+  unsigned int vao;
   GLC(glGenVertexArrays(1, &vao));
   GLC(glBindVertexArray(vao));
 
-	boxMesh = new Mesh("../resources/meshes/box.obj");
+  boxMesh = new Mesh("../resources/meshes/box.obj");
 
-	scene.addObject(shader, boxMesh, {0,0,0}, {1,1,1}, {});
-	scene.addObject(shader, boxMesh, {-3,0,0}, {1,1,1}, {});
-	scene.addObject(shader, boxMesh, {3,0,0}, {1,1,1}, {});
+  scene.addObject(shader, boxMesh, {0,0,0}, {1,1,1}, {});
+  scene.addObject(shader, boxMesh, {-3,0,0}, {1,1,1}, {});
+  scene.addObject(shader, boxMesh, {3,0,0}, {1,1,1}, {});
 
-	// loader::Texture textureLoader;
-	// auto texId = textureLoader.loadBMP("../resources/textures/foo.bmp");
-	// glBindTexture(GL_TEXTURE_2D, texId);
+  loader::Texture textureLoader;
+  auto texId = textureLoader.loadBMP("../resources/textures/foo.bmp");
+  glBindTexture(GL_TEXTURE_2D, texId);
 }
 
 Renderer::~Renderer() {
-	Shader::deleteShaders();
-	delete boxMesh;
+  Shader::deleteShaders();
+  delete boxMesh;
 };
 
 void Renderer::render() {
-	scene.render();
+  scene.render();
 }
 
 void Renderer::setWireMode(bool on) {
