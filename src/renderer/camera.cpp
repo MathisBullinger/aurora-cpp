@@ -20,7 +20,7 @@ void Camera::lookIn(const Vector<3, float>& direction) {
   Vector<3, float> up{0, 1, 0};
   
   auto z = -direction.normal();
-  auto x = -z.cross(up.normal());
+  auto x = -z.cross(up).normal();
   auto y = x.cross(-z);
   auto position = getPosition();
 
@@ -65,7 +65,7 @@ Matrix<4, 4, float> Camera::calcViewMatrix(
   const Vector<3, float>& up
 ) {
   auto z = -direction.normal();
-  auto x = -z.cross(up.normal());
+  auto x = -z.cross(up.normal()).normal();
   auto y = x.cross(-z);
 
   return {
