@@ -23,6 +23,9 @@ add_executable(${PROJECT_NAME}
   src/renderer/projection.cpp
   src/loaders/texture.cpp
   src/loaders/mesh.cpp
+  src/input/keyboard.cpp
+  src/input/inputReceiver.cpp
+  src/input/cameraController.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE 
   SDL2::SDL2main 

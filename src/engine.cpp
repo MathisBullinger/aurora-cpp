@@ -1,4 +1,5 @@
 #include "engine.hpp"
+#include "input/inputReceiver.hpp"
 
 namespace aur {
 
@@ -24,6 +25,10 @@ void Engine::run() {
 
     for (auto window : windows) {
       window->clear();
+
+      for (const auto& receiver : InputReceiver::active)
+        receiver->update(input);
+      
       renderer.render();
       window->swap();
     }
@@ -42,6 +47,14 @@ void Engine::handleEvent(SDL_Event& event) {
   switch (event.type) {
     case SDL_QUIT:
       running = false;
+      break;
+
+    case SDL_KEYDOWN:
+      input.getKeyboard().press(event.key.keysym.sym);
+      break;
+    
+    case SDL_KEYUP:
+      input.getKeyboard().release(event.key.keysym.sym);
       break;
   }
 }

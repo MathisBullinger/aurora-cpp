@@ -6,10 +6,7 @@ namespace aur {
 Scene::Scene() {
   camera.move({0, 0, 5});
   camera.lookIn({0, 0, -1});
-
-  std::cout << "position = " << camera.getPosition() << std::endl;
-  std::cout << "view dir = " << camera.getViewDir() << std::endl;
-  std::cout << camera.viewMatrix() << std::endl;
+  controller.start();
 }
 
 void Scene::render() {
@@ -28,9 +25,8 @@ void Scene::render() {
     for (auto& [mesh, objects] : meshes) {
       // ...bind mesh
 
-      auto i = 0;
       for (auto& obj : objects) {
-        obj.rotate({{0, 1, 0}, (float)0.002 * (1 + i++ / 3.f)});
+        obj.rotate({{0, 1, 0}, .2_deg});
         
         auto model = obj.getModel();
         auto MVP = VP * model;

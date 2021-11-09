@@ -2,6 +2,7 @@
 
 #include "math/vector.hpp"
 #include "math/matrix.hpp"
+#include "math/angle.hpp"
 #include <cmath>
 #include <exception>
 
@@ -13,9 +14,9 @@ class Quaternion {
 public:
   Quaternion(): w{1}, v{0,0,0} {}
 
-  Quaternion(const vec3<float>& axis, float angle) {
+  Quaternion(const vec3<float>& axis, angle angle) {
     w = cos(angle / 2);
-    v = axis * sin(angle / 2);
+    v = axis * (float)sin(angle / 2);
   }
 
   Quaternion inverse() const {

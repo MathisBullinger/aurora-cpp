@@ -5,6 +5,7 @@
 #include "renderer/shader.hpp"
 #include "renderer/mesh.hpp"
 #include "renderer/camera.hpp"
+#include "input/cameraController.hpp"
 #include "math/vector.hpp"
 #include "math/matrix.hpp"
 #include "math/quaternion.hpp"
@@ -47,6 +48,8 @@ public:
 private:
   RenderGraph renderGraph;
   Camera camera;
+  CameraController controller{camera};
+  
 };
   
 }

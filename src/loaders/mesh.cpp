@@ -97,7 +97,13 @@ private:
 
     for (auto c : token + '/') {
       if (c == '/') {
-        inds[i++] = number<unsigned int>(seg);
+        auto n = number<int>(seg);
+        if (n < 0) {
+          if (i == 0) n = positions.size() - n;
+          if (i == 1) n = normals.size() - n;
+          if (i == 2) n = uvs.size() - n;
+        }
+        inds[i++] = n;
         seg = "";
         if (i == 3) break;
       } 

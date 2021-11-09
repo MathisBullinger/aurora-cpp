@@ -7,6 +7,7 @@
 #include <chrono>
 #include <thread>
 #include <vector>
+#include "input/input.hpp"
 
 using namespace std::chrono;
 
@@ -26,8 +27,9 @@ private:
   void processEvents();
   void handleEvent(SDL_Event& event);
   
-  std::vector<Window*> windows;
   bool running = false;
+  std::vector<Window*> windows;
+  Input input;
 };
 
 }

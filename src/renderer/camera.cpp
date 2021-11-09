@@ -13,7 +13,7 @@ Camera::~Camera() {
 void Camera::move(const Vector<3, float>& by) {
   auto pos = getPosition() + by;
   for (unsigned int r = 0; r < 3; r++)
-    view_[{r, 3}] = pos.dot(-view_.read<3>(r, 0, matrix::row));
+    view_[{r, 3}] = -view_.read<3>(r, 0, matrix::row).dot(pos);
 }
 
 void Camera::lookIn(const Vector<3, float>& direction) {
@@ -32,11 +32,15 @@ void Camera::lookIn(const Vector<3, float>& direction) {
 }
 
 Vector<3, float> Camera::getPosition() const {
-  return -view_.read<3>(2, 0, matrix::row) * view_[{2, 3}];
+  return {
+    -(view_.read<3>(0, 0, matrix::row) * view_[{0, 3}])[0],
+    -(view_.read<3>(1, 0, matrix::row) * view_[{1, 3}])[1],
+    -(view_.read<3>(2, 0, matrix::row) * view_[{2, 3}])[2]
+  };
 }
 
 Vector<3, float> Camera::getViewDir() const {
-  return view_.read<3>(2, 0, matrix::row);
+  return -view_.read<3>(2, 0, matrix::row);
 }
 
 const Matrix<4, 4, float>& Camera::viewMatrix() {

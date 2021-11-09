@@ -40,7 +40,11 @@ struct angle {
   }
 
   constexpr angle operator - (const angle& rhs) const {
-    return angle::radians(value + rhs.value);
+    return angle::radians(value - rhs.value);
+  }
+
+  constexpr angle operator - () const {
+    return angle::radians(-value);
   }
 
   void operator -= (const angle& rhs) {
