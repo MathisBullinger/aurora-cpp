@@ -40,6 +40,12 @@ void CameraController::update(Input& input) {
 
   if (key.isPressed(SDLK_DOWN))
     camera_.rotate(Quaternion{camera_.getUpDir().cross(camera_.getViewDir()), rv});
+
+  if (key.isPressed(SDLK_e))
+    camera_.rotate(Quaternion{camera_.getViewDir(), rv});
+
+  if (key.isPressed(SDLK_q))
+    camera_.rotate(Quaternion{camera_.getViewDir(), -rv});
 };
 
 }

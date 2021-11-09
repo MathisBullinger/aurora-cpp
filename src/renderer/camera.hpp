@@ -14,8 +14,6 @@ public:
   ~Camera();
 
   void move(const Vector<3, float>& by);
-  void lookIn(const Vector<3, float>& direction);
-  void lookAt(const Vector<3, float>& target);
   void rotate(const Quaternion& rotation);
   
   const Matrix<4, 4, float>& viewMatrix();
@@ -26,14 +24,11 @@ public:
   Vector<3, float> getUpDir() const;
 
 private:
-  static Matrix<4, 4, float> calcViewMatrix(
-    const Vector<3, float>& position,
-    const Vector<3, float>& direction,
-    const Vector<3, float>& up
-  );
-
-  Matrix<4, 4, float> view_ = calcViewMatrix({0,0,0}, {0,0,1}, {0,1,0});
   Projection* projection_ = nullptr;
+  Matrix<4, 4, float> view_;
+  Vector<3, float> position_;
+  Quaternion rotation_;
+  bool dirty_ = true;
 };
 
 }

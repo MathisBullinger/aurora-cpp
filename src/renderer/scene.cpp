@@ -4,14 +4,12 @@
 namespace aur {
 
 Scene::Scene() {
-  camera.move({5, 0, 5});
-  camera.lookAt({0, 0, 0});
   controller.start();
-
-  std::cout << camera.viewMatrix() << std::endl;
 }
 
 void Scene::render() {
+  auto view = camera.viewMatrix();
+  std::cout << view << std::endl;
   auto VP = camera.projectionMatrix() * camera.viewMatrix();
 
   for (auto& [shader, meshes] : renderGraph) {
@@ -28,7 +26,7 @@ void Scene::render() {
       // ...bind mesh
 
       for (auto& obj : objects) {
-        obj.rotate({{0, 1, 0}, .2_deg});
+        // obj.rotate({{0, 1, 0}, .2_deg});
         
         auto model = obj.getModel();
         auto MVP = VP * model;
