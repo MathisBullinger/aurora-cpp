@@ -3,7 +3,7 @@
 namespace aur {
 
 Camera::Camera() {
-  projection_ = new Perspective(8.f/6);
+  projection_ = new Perspective(8.f/6, 60_deg);
 }
 
 Camera::~Camera() {
@@ -31,16 +31,24 @@ void Camera::lookIn(const Vector<3, float>& direction) {
   });
 }
 
+void Camera::lookAt(const Vector<3, float>& target) {
+  lookIn((target - getPosition()).normal());
+}
+
+void Camera::rotate(const Quaternion& rotation) {
+  lookIn(rotation * getViewDir());
+}
+
 Vector<3, float> Camera::getPosition() const {
-  return {
-    -(view_.read<3>(0, 0, matrix::row) * view_[{0, 3}])[0],
-    -(view_.read<3>(1, 0, matrix::row) * view_[{1, 3}])[1],
-    -(view_.read<3>(2, 0, matrix::row) * view_[{2, 3}])[2]
-  };
+  return view_.inverse().read<3>(0, 3, matrix::column);
 }
 
 Vector<3, float> Camera::getViewDir() const {
   return -view_.read<3>(2, 0, matrix::row);
+}
+
+Vector<3, float> Camera:: getUpDir() const {
+  return view_.read<3>(1, 0, matrix::row);
 }
 
 const Matrix<4, 4, float>& Camera::viewMatrix() {

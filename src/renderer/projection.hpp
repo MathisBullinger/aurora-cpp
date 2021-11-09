@@ -19,7 +19,7 @@ protected:
 
 class Perspective : public Projection {
 public:
-  Perspective(float aspect, angle fov = 90_deg, float near = .5, float far = 5000);
+  Perspective(float aspect, angle fov = 90_deg, float near = .2, float far = 5000);
   
 protected:
   void compute();

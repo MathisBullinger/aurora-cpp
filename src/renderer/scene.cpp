@@ -4,9 +4,11 @@
 namespace aur {
 
 Scene::Scene() {
-  camera.move({0, 0, 5});
-  camera.lookIn({0, 0, -1});
+  camera.move({5, 0, 5});
+  camera.lookAt({0, 0, 0});
   controller.start();
+
+  std::cout << camera.viewMatrix() << std::endl;
 }
 
 void Scene::render() {
