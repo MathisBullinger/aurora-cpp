@@ -4,6 +4,7 @@
 #include <vector>
 #include "renderer/shader.hpp"
 #include "renderer/mesh.hpp"
+#include "renderer/camera.hpp"
 #include "math/vector.hpp"
 #include "math/matrix.hpp"
 #include "math/quaternion.hpp"
@@ -31,6 +32,8 @@ using RenderGraph = std::map<Shader*, std::map<Mesh*, std::vector<Object>>>;
 
 class Scene {
 public:
+  Scene();
+
   void render();
 
   void addObject(
@@ -43,6 +46,7 @@ public:
 
 private:
   RenderGraph renderGraph;
+  Camera camera;
 };
   
 }

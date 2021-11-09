@@ -19,6 +19,8 @@ add_executable(${PROJECT_NAME}
   src/renderer/vertexBuffer.cpp
   src/renderer/indexBuffer.cpp
   src/renderer/scene.cpp
+  src/renderer/camera.cpp
+  src/renderer/projection.cpp
   src/loaders/texture.cpp
   src/loaders/mesh.cpp
 )

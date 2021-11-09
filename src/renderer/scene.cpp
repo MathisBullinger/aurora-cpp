@@ -1,34 +1,40 @@
 #include "./scene.hpp"
-#include "./viewUtil.hpp"
 #include "util/gl.hpp"
 
 namespace aur {
 
+Scene::Scene() {
+  camera.move({0, 0, 5});
+  camera.lookIn({0, 0, -1});
+
+  std::cout << "position = " << camera.getPosition() << std::endl;
+  std::cout << "view dir = " << camera.getViewDir() << std::endl;
+  std::cout << camera.viewMatrix() << std::endl;
+}
+
 void Scene::render() {
-  auto view = aur::lookAt({3, 2, 8}, {0, 0, 0}, {0, 1, 0});
-  auto projection = aur::perspective(800.f/600, M_PI / 4, 0.1f, 1000.f);
-  auto VP = projection * view;
+  auto VP = camera.projectionMatrix() * camera.viewMatrix();
 
   for (auto& [shader, meshes] : renderGraph) {
     shader->use();
 
-    shader->setUniform("view", view);
+    shader->setUniform("view", camera.viewMatrix());
 
-    Vector<4, float> lightPos{-8, 3, 8, 1};
+    Vector<4, float> lightPos{-5, 4, 7, 1};
     
     shader->setUniform("lightPos", lightPos.fit<3>());
-    shader->setUniform("lightPosCamSpace", (view * lightPos).fit<3>());
+    shader->setUniform("lightPosCamSpace", (camera.viewMatrix() * lightPos).fit<3>());
 
     for (auto& [mesh, objects] : meshes) {
       // ...bind mesh
 
       auto i = 0;
       for (auto& obj : objects) {
-        obj.rotate({{0, 1, 0}, (float)0.01 * (1 + i++ / 3.f)});
+        obj.rotate({{0, 1, 0}, (float)0.002 * (1 + i++ / 3.f)});
         
         auto model = obj.getModel();
         auto MVP = VP * model;
-        auto normal = (Matrix<3, 3>(view) * Matrix<3, 3>(model)).inverse().transpose();
+        auto normal = (Matrix<3, 3>(camera.viewMatrix()) * Matrix<3, 3>(model)).inverse().transpose();
 
         shader->setUniform("MVP", MVP);
         shader->setUniform("model", model);

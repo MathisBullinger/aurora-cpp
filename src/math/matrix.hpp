@@ -17,6 +17,15 @@ struct Index {
   unsigned int row;
   unsigned int column;
 };
+
+enum class dir {
+  row,
+  column
+};
+
+inline auto row = dir::row;
+inline auto column = dir::column;
+
 }
 
 template <unsigned int rows, unsigned int columns, typename T = float>
@@ -43,7 +52,7 @@ public:
 
   T values[rows * columns] = {};
 
-  T operator [](const matrix::Index& i) const {
+  constexpr T operator [](const matrix::Index& i) const {
     #ifdef COLUMN_MAJOR
       return values[i.column * rows + i.row];
     #else
@@ -51,7 +60,7 @@ public:
     #endif
   }
 
-  T& operator [](const matrix::Index& i) {
+  constexpr T& operator [](const matrix::Index& i) {
     #ifdef COLUMN_MAJOR
       return values[i.column * rows + i.row];
     #else
@@ -68,7 +77,7 @@ public:
   }
 
   template <unsigned int bcols>
-  Matrix<rows, bcols, T> operator*(const Matrix<columns, bcols, T>& rhs) {
+  Matrix<rows, bcols, T> operator *(const Matrix<columns, bcols, T>& rhs) const {
     Matrix<rows, bcols, T> result({(T)0});
 
     for (unsigned int i = 0; i < rows * bcols; i++) {
@@ -155,6 +164,23 @@ public:
       for (unsigned int c = 0; c < rows; c++)
         result[{c,r}] = at(r, c);
     return result;
+  }
+
+  template <unsigned int D>
+  Vector<D, T> read(unsigned int row, unsigned int column, matrix::dir dir) const {
+    assert(dir == matrix::row ? (column + D <= columns) : (row + D <= rows));
+    Vector<D, T> vec;
+    for (unsigned int i = 0; i < D; i++)
+      vec[i] = dir == matrix::row ? at(row, column + i) : at(row + i, column);
+    return vec;
+  };
+
+  template <unsigned int R, unsigned int C>
+  void write(const std::array<T, R * C>& values, unsigned int row = 0, unsigned int column = 0) {
+    assert(row + R <= rows && column + C <= columns);
+    for (unsigned int r = row; r < R; r++)
+      for (unsigned int c = column; c < C; c++)
+        (*this)[{r, c}] = values[r * C + c];
   }
 
   template <unsigned int R, unsigned int C, typename N>

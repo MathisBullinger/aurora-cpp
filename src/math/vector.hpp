@@ -9,7 +9,7 @@
 
 namespace aur {
 
-template <const unsigned int dimensions, typename T = double>
+template <const unsigned int dimensions, typename T = float>
 class Vector {
 public:
   template <typename... U>
@@ -22,6 +22,11 @@ public:
     for (unsigned int i = 0; i < dimensions; i++)
       result.values[i] = values[i] + rhs.values[i];
     return result;
+  }
+
+  void operator +=(const Vector<dimensions, T>& rhs) {
+    for (unsigned int i = 0; i < dimensions; i++)
+      values[i] += rhs[i];
   }
 
   Vector<dimensions, T> operator -(const Vector<dimensions, T>& rhs) const {
@@ -101,9 +106,9 @@ public:
     return *this / (N)magnitude();
   }
 
-  template <typename R>
-  double dot(const Vector<dimensions, R>& rhs) const {
-    double product = 0;
+  template <typename R = T>
+  auto dot(const Vector<dimensions, R>& rhs) const {
+    decltype(std::declval<T&>() * std::declval<R&>()) product = 0;
     for (unsigned int i = 0; i < dimensions; i++) 
       product += values[i] * rhs.values[i];
     return product;
@@ -122,13 +127,13 @@ public:
   friend std::ostream& operator<<(std::ostream&, const Vector<D, N>&);
 };
 
-template <const unsigned int D, typename T = double>
+template <const unsigned int D, typename T = float>
 using vec = Vector<D, T>;
 
-template <typename T = double>
+template <typename T = float>
 using vec2 = Vector<2, T>;
 
-template <typename T = double>
+template <typename T = float>
 using vec3 = Vector<3, T>;
 
 template <const unsigned int D, typename N>
