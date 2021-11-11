@@ -21,6 +21,16 @@ void Camera::rotate(const Quaternion& rotation) {
   dirty_ = true;
 }
 
+void Camera::lookIn(const Vector<3, float>& direction) {
+  auto a = getViewDir().dot(direction) / direction.magnitude();
+  auto axis = abs(a) == 1 ? getUpDir() : getViewDir().cross(direction).normal();
+  rotate({ axis, angle::radians(a * PI) });
+}
+
+void Camera::lookAt(const Vector<3, float>& target) {
+  lookIn(target - getPosition());
+}
+
 Vector<3, float> Camera::getPosition() const {
   return position_;
 }

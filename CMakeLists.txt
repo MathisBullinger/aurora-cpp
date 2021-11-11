@@ -24,6 +24,7 @@ add_executable(${PROJECT_NAME}
   src/loaders/texture.cpp
   src/loaders/mesh.cpp
   src/input/keyboard.cpp
+  src/input/mouse.cpp
   src/input/inputReceiver.cpp
   src/input/cameraController.cpp
 )

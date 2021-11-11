@@ -24,6 +24,8 @@ Window::Window() {
     throw runtime_error(std::string("couldn't init glew: ") + reinterpret_cast<const char*>(glewGetErrorString(glew_status)));
 
   glClearColor(0, 0, 0, 1);
+
+  SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
 Window::~Window() {

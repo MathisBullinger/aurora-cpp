@@ -4,12 +4,13 @@
 namespace aur {
 
 Scene::Scene() {
+  camera.move({0, 0, 5});
+  camera.lookAt({0, 0, 0});
   controller.start();
 }
 
 void Scene::render() {
   auto view = camera.viewMatrix();
-  std::cout << view << std::endl;
   auto VP = camera.projectionMatrix() * camera.viewMatrix();
 
   for (auto& [shader, meshes] : renderGraph) {
@@ -17,7 +18,7 @@ void Scene::render() {
 
     shader->setUniform("view", camera.viewMatrix());
 
-    Vector<4, float> lightPos{-5, 4, 7, 1};
+    Vector<4, float> lightPos{5, 5, 5, 1};
     
     shader->setUniform("lightPos", lightPos.fit<3>());
     shader->setUniform("lightPosCamSpace", (camera.viewMatrix() * lightPos).fit<3>());
@@ -26,8 +27,6 @@ void Scene::render() {
       // ...bind mesh
 
       for (auto& obj : objects) {
-        // obj.rotate({{0, 1, 0}, .2_deg});
-        
         auto model = obj.getModel();
         auto MVP = VP * model;
         auto normal = (Matrix<3, 3>(camera.viewMatrix()) * Matrix<3, 3>(model)).inverse().transpose();

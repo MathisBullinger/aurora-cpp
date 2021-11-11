@@ -15,6 +15,8 @@ public:
 
   void move(const Vector<3, float>& by);
   void rotate(const Quaternion& rotation);
+  void lookIn(const Vector<3, float>& direction);
+  void lookAt(const Vector<3, float>& target);
   
   const Matrix<4, 4, float>& viewMatrix();
   const Matrix<4, 4, float>& projectionMatrix();

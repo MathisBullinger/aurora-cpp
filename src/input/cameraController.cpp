@@ -46,6 +46,15 @@ void CameraController::update(Input& input) {
 
   if (key.isPressed(SDLK_q))
     camera_.rotate(Quaternion{camera_.getViewDir(), -rv});
+
+  auto move = input.getMouse().relativeMovement();
+  if (move[0] + move[1] == 0) return;
+
+  auto clAng = angle::radians( atan2(move[0], -move[1]) );
+  camera_.rotate({ 
+    Quaternion{ camera_.getViewDir(), 90_deg + clAng } * camera_.getUpDir(),
+    angle::radians(move.magnitude() / 200) 
+  });
 };
 
 }

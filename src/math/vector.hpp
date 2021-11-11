@@ -6,6 +6,7 @@
 #include <iostream>
 #include <tuple>
 #include <type_traits>
+#include "math/angle.hpp"
 
 namespace aur {
 
@@ -14,6 +15,11 @@ class Vector {
 public:
   template <typename... U>
   Vector(U... values): values{T(values)...} {}
+
+  template <typename U>
+  Vector(const Vector<dimensions, U>& source) {
+    for (unsigned int i = 0; i < dimensions; i++) values[i] = (T)source[i];
+  }
   
   T values[dimensions] = {0};
 
@@ -120,6 +126,15 @@ public:
       values[1] * rhs.values[2] - values[2] * rhs.values[1],
       values[2] * rhs.values[0] - values[0] * rhs.values[2],
       values[0] * rhs.values[1] - values[1] * rhs.values[0]
+    };
+  }
+
+  Vector<2, T> rotate(const angle n) const requires (dimensions == 2) {
+    auto s = sin(n);
+    auto c = cos(n);
+    return {
+      values[0] * c - values[1] * s,
+      values[0] * s + values[1] * c
     };
   }
 

@@ -15,8 +15,13 @@ struct angle {
   }
 
   template <typename T> requires std::is_arithmetic<T>::value
-  constexpr static angle degree(const T n) {
+  constexpr static angle degrees(const T n) {
     return angle{(double)n / 360.f * TAU};
+  }
+
+  template <typename T> requires std::is_arithmetic<T>::value
+  constexpr static angle turns(const T n) {
+    return angle{(double)n * TAU};
   }
 
   double degrees() const {
@@ -25,6 +30,14 @@ struct angle {
 
   double radians() const {
     return value;
+  }
+
+  double turns() const {
+    return value / TAU;
+  }
+
+  angle abs() const {
+    return angle{std::abs(value)};
   }
 
   operator double() const {
@@ -84,10 +97,17 @@ constexpr angle operator"" _rad (long double n) {
 }
 
 constexpr angle operator"" _deg (unsigned long long n) {
-  return angle::degree(n);
+  return angle::degrees(n);
 }
 constexpr angle operator"" _deg (long double n) {
-  return angle::degree(n);
+  return angle::degrees(n);
+}
+
+constexpr angle operator"" _rev (unsigned long long n) {
+  return angle::turns(n);
+}
+constexpr angle operator"" _rev (long double n) {
+  return angle::turns(n);
 }
 
 template <typename T> requires std::is_arithmetic<T>::value
