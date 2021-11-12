@@ -91,6 +91,22 @@ public:
     return values[i];
   }
 
+  T x() const {
+    return values[0];
+  }
+
+  T y() const requires (dimensions >= 2) {
+    return values[1];
+  }
+
+  T z() const requires (dimensions >= 3) {
+    return values[2];
+  }
+
+  T w() const requires (dimensions >= 4) {
+    return values[3];
+  }
+
   template <std::size_t I>
   auto& get() {
     return values[I];
@@ -110,6 +126,10 @@ public:
   template <typename N = T>
   Vector<dimensions, N> normal() const {
     return *this / (N)magnitude();
+  }
+
+  bool isNormalized() const {
+    return abs(magnitude() - 1) < 1e-5;
   }
 
   template <typename R = T>
@@ -166,6 +186,24 @@ template <const unsigned int D, typename T, typename N> requires std::is_arithme
 Vector<D, decltype(std::declval<T&>() * std::declval<N&>())> operator *(N n, const Vector<D, T>& vec) {
   return vec * n;
 }
+
+struct Euler : public Vector<3, angle> {
+  template <typename T>
+  Euler(T yaw, T pitch, T roll) 
+    : Vector<3, angle>{angle::radians(yaw), angle::radians(pitch), angle::radians(roll)} {};
+  
+  angle yaw() /* φ */ const {
+    return values[0];
+  }
+  
+  angle pitch() /* θ */ const {
+    return values[1];
+  }
+
+  angle roll() /* ψ */ const {
+    return values[2];
+  }
+};
 
 }
 

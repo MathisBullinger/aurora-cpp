@@ -87,6 +87,14 @@ struct angle {
   void operator /= (T n) {
     value /= n;
   }
+
+  auto sin() const {
+    return std::sin(value);
+  }
+  
+  auto cos () const {
+    return std::cos(value);
+  }
 };
 
 constexpr angle operator"" _rad (unsigned long long n) {

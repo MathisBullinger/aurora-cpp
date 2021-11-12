@@ -4,8 +4,9 @@
 namespace aur {
 
 Scene::Scene() {
-  camera.move({0, 0, 5});
-  camera.lookAt({0, 0, 0});
+  camera.move({ 0, 0, 5 });
+  camera.lookAt({ 0, 0, 0 });
+  
   controller.start();
 }
 

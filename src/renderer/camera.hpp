@@ -13,24 +13,61 @@ public:
   Camera();
   ~Camera();
 
+  const Matrix<4, 4, float>& projectionMatrix();
+  const Matrix<4, 4, float>& viewMatrix();
+
   void move(const Vector<3, float>& by);
+  virtual void lookIn(const Vector<3, float>& direction) = 0;
+  virtual void lookAt(const Vector<3, float>& direction) = 0;
+  virtual void rotate(const Quaternion& rotation) = 0;
+
+  const Vector<3, float> getPosition() const;
+  virtual Vector<3, float> getDirView() const = 0;
+  virtual Vector<3, float> getDirUp() const = 0;
+  virtual Vector<3, float> getDirRight() const = 0;
+
+protected:
+  virtual void generateView() = 0;
+
+  Projection* projection_ = nullptr;
+  Matrix<4, 4, float> view_;
+  Vector<3, float> position_;
+  bool dirty_ = true;
+  const Vector<3, float> initialZ{ 0, 0, 1 };
+  const Vector<3, float> initialY{ 0, 1, 0 };
+};
+
+class FreeCamera : public Camera {
+public:
   void rotate(const Quaternion& rotation);
   void lookIn(const Vector<3, float>& direction);
   void lookAt(const Vector<3, float>& target);
   
-  const Matrix<4, 4, float>& viewMatrix();
-  const Matrix<4, 4, float>& projectionMatrix();
-
-  Vector<3, float> getPosition() const;
-  Vector<3, float> getViewDir() const;
-  Vector<3, float> getUpDir() const;
+  Vector<3, float> getDirView() const;
+  Vector<3, float> getDirUp() const;
+  Vector<3, float> getDirRight() const;
 
 private:
-  Projection* projection_ = nullptr;
-  Matrix<4, 4, float> view_;
-  Vector<3, float> position_;
+  void generateView();
   Quaternion rotation_;
-  bool dirty_ = true;
+};
+
+class FPSCamera : public Camera {
+public:
+  void rotate(const Quaternion& rotation);
+  void addYaw(angle yaw);
+  void addPitch(angle pitch);
+  void lookIn(const Vector<3, float>& direction);
+  void lookAt(const Vector<3, float>& target);
+  
+  Vector<3, float> getDirView() const;
+  Vector<3, float> getDirUp() const;
+  Vector<3, float> getDirRight() const;
+
+private:
+  void generateView();
+  angle pitch_ = 0_deg;
+  angle yaw_ = angle::radians(atan2(-initialZ[2], -initialZ[0]));
 };
 
 }

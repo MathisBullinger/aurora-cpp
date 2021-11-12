@@ -39,6 +39,7 @@ void Engine::run() {
 }
 
 void Engine::processEvents() {
+  input.getMouse().reset();
   SDL_Event event;
   while (SDL_PollEvent(&event) != 0) handleEvent(event);
 }
@@ -55,6 +56,10 @@ void Engine::handleEvent(SDL_Event& event) {
     
     case SDL_KEYUP:
       input.getKeyboard().release(event.key.keysym.sym);
+      break;
+
+    case SDL_MOUSEMOTION:
+      input.getMouse().move(event.motion.xrel, event.motion.yrel);
       break;
   }
 }

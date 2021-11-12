@@ -20,6 +20,8 @@ add_executable(${PROJECT_NAME}
   src/renderer/indexBuffer.cpp
   src/renderer/scene.cpp
   src/renderer/camera.cpp
+  src/renderer/cameraFree.cpp
+  src/renderer/cameraFPS.cpp
   src/renderer/projection.cpp
   src/loaders/texture.cpp
   src/loaders/mesh.cpp

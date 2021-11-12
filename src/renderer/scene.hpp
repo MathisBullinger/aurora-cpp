@@ -47,9 +47,8 @@ public:
 
 private:
   RenderGraph renderGraph;
-  Camera camera;
+  FPSCamera camera;
   CameraController controller{camera};
-  
 };
   
 }

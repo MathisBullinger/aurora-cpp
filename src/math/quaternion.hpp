@@ -82,6 +82,15 @@ public:
     };
   }
 
+  Euler euler() const {
+    return {
+      atan2(2 * (w * v[0] + v[1] * v[2]), 1 - 2 * (v[0] * v[0] + v[1] * v[1])),
+      asin(2 * (w * v[1] - v[2] * v[0])),
+      atan2(2 * (w * v[2] + v[0] * v[1]), 1 - 2 * (v[1] * v[1] + v[2] * v[2]))
+    };
+  }
+
+private:
   float w;
   vec3<float> v;
 };

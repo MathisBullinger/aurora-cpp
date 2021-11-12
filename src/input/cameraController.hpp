@@ -7,11 +7,11 @@ namespace aur {
 
 class CameraController : public InputReceiver {
 public:
-  CameraController(Camera& camera);
+  CameraController(FPSCamera& camera);
   void update(Input& input);
 
 private:
-  Camera& camera_;
+  FPSCamera& camera_;
 };
   
 }
