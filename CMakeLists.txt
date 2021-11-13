@@ -25,6 +25,7 @@ add_executable(${PROJECT_NAME}
   src/renderer/projection.cpp
   src/loaders/texture.cpp
   src/loaders/mesh.cpp
+  src/loaders/objParser.cpp
   src/input/keyboard.cpp
   src/input/mouse.cpp
   src/input/inputReceiver.cpp

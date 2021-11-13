@@ -5,139 +5,9 @@
 #include <string>
 #include <map>
 #include <array>
+#include "./objParser.hpp"
 
-namespace aur::loader {
-
-using VertexIndex = std::array<unsigned int, 3>;
-
-class OBJParser {
-public:
-  OBJParser(
-    std::ifstream& stream, 
-    std::vector<float>& vertices,
-    std::vector<unsigned int>& indices
-  ): file{stream}, vertices{vertices}, indices{indices} {};
-
-  void parse() {
-    for (char c; file.get(c);) {
-      if (c == '\n' || c == '#' || isspace(c)) {
-        if (state != SKIP && token.length()) digest();
-        if (c == '#') state = SKIP;
-        else if (c == '\n') state = NEW;
-        token = "";
-      }
-      else token += c;
-    }
-
-    for (const auto& vertex : vertexIndices)
-      indices.push_back(getVertex(vertex));
-  }
-
-private:
-  void digest() {
-    if (state == NEW) {
-      if (OBJParser::types.find(token) == OBJParser::types.end()) {
-        state = SKIP;
-      }
-      else {
-        state = OBJParser::types.at(token);
-        elc = 0;
-      }
-    }
-
-    else if (state == V) {
-      positions.push_back(number<float>(token));
-      if (++elc >= 3) state = SKIP;
-    }
-
-    else if (state == VN) {
-      normals.push_back(number<float>(token));
-      if (++elc >= 3) state = SKIP;
-    }
-
-    else if (state == VT) {
-      uvs.push_back(number<float>(token));
-      if (++elc >= 2) state = SKIP;
-    }
-
-    else if (state == F) {
-      auto [v, vt, vn] = face();
-      vertexIndices.push_back({ v - 1, vn - 1, vt - 1 });
-      if (++elc == 3) state = SKIP;
-    }
-  }
-
-  std::map<VertexIndex, unsigned int> vertexMap;
-
-  unsigned int getVertex(const VertexIndex& vertex) {
-    if (!vertexMap.contains(vertex)) {
-      vertexMap.insert({ vertex, vertices.size() / 8 });
-      vertices.push_back(positions[vertex[0] * 3]);
-      vertices.push_back(positions[vertex[0] * 3 + 1]);
-      vertices.push_back(positions[vertex[0] * 3 + 2]);
-      vertices.push_back(normals[vertex[1] * 3]);
-      vertices.push_back(normals[vertex[1] * 3 + 1]);
-      vertices.push_back(normals[vertex[1] * 3 + 2]);
-      vertices.push_back(uvs[vertex[2] * 2]);
-      vertices.push_back(uvs[vertex[2] * 2 + 1]);
-    }
-    return vertexMap.at(vertex);
-  }
-
-  template <typename T>
-  T number(std::string& str) {
-    if (str.size() == 0 || (str[0] < '0' || str[0] > '9') && str[0] != '-') return 0;
-    return std::stod(str);
-  }
-
-  std::array<unsigned int, 3> face() {
-    std::array<unsigned int, 3> inds{0, 0, 0};
-    std::string seg;
-    unsigned int i = 0;
-
-    for (auto c : token + '/') {
-      if (c == '/') {
-        auto n = number<int>(seg);
-        if (n < 0) {
-          if (i == 0) n = positions.size() - n;
-          if (i == 1) n = normals.size() - n;
-          if (i == 2) n = uvs.size() - n;
-        }
-        inds[i++] = n;
-        seg = "";
-        if (i == 3) break;
-      } 
-      else seg += c;
-    }
-    return inds;
-  }
-
-  std::ifstream& file;
-  std::string token;
-
-  enum State { NEW, SKIP, V, VN, VT, F };
-  State state = NEW;
-  unsigned int elc = 0;
-
-  std::vector<float>& vertices;
-  std::vector<unsigned int>& indices;
-  static const std::map<std::string, State> types;
-
-  std::vector<float> positions;
-  std::vector<float> normals;
-  std::vector<float> uvs;
-  std::vector<VertexIndex> vertexIndices;
-};
-
-const std::map<std::string, OBJParser::State> OBJParser::types = {
-  { "v", V },
-  { "vn", VN },
-  { "vt", VT },
-  { "f", F }
-};
-
-
-namespace mesh {
+namespace aur::loader::mesh {
 
 bool loadOBJ(const std::string& path, std::vector<float>& vertices, std::vector<unsigned int>& indices) {
   std::ifstream file(path);
@@ -147,10 +17,8 @@ bool loadOBJ(const std::string& path, std::vector<float>& vertices, std::vector<
   }
   OBJParser parser(file, vertices, indices);
   parser.parse();
+  file.close();
   return true;
 }
-
-}
-
 
 }

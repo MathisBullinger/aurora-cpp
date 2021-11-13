@@ -24,9 +24,9 @@ Renderer::Renderer() {
   GLC(glGenVertexArrays(1, &vao));
   GLC(glBindVertexArray(vao));
 
-  boxMesh = new Mesh("../resources/meshes/teapot2.obj");
+  boxMesh = new Mesh("../resources/meshes/balloon.obj");
 
-  float scale = .1;
+  float scale = .01;
   scene.addObject(shader, boxMesh, {0,0,0}, {scale,scale,scale}, {});
 
   loader::Texture textureLoader;
