@@ -19,7 +19,7 @@ void Scene::render() {
 
     shader->setUniform("view", camera.viewMatrix());
 
-    Vector<4, float> lightPos{5, 5, 5, 1};
+    Vector<4, float> lightPos{500, 500, 500, 1};
     
     shader->setUniform("lightPos", lightPos.fit<3>());
     shader->setUniform("lightPosCamSpace", (camera.viewMatrix() * lightPos).fit<3>());

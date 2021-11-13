@@ -24,14 +24,13 @@ Renderer::Renderer() {
   GLC(glGenVertexArrays(1, &vao));
   GLC(glBindVertexArray(vao));
 
-  boxMesh = new Mesh("../resources/meshes/box.obj");
+  boxMesh = new Mesh("../resources/meshes/teapot2.obj");
 
-  scene.addObject(shader, boxMesh, {0,0,0}, {1,1,1}, {});
-  scene.addObject(shader, boxMesh, {-3,0,0}, {1,1,1}, {});
-  scene.addObject(shader, boxMesh, {3,0,0}, {1,1,1}, {});
+  float scale = .1;
+  scene.addObject(shader, boxMesh, {0,0,0}, {scale,scale,scale}, {});
 
   loader::Texture textureLoader;
-  auto texId = textureLoader.loadBMP("../resources/textures/foo.bmp");
+  auto texId = textureLoader.loadBMP("../resources/textures/porcelain.bmp");
   glBindTexture(GL_TEXTURE_2D, texId);
 }
 

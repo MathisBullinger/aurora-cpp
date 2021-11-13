@@ -13,14 +13,14 @@ uniform sampler2D textureSampler;
 uniform vec3 lightPos;
 
 const vec3 lightColor = vec3(1);
-const float lightPower = 100;
+const float lightPower = 15;
 const vec3 materialSpecularColor = vec3(.3);
 
 void main() {
   vec3 materialDiffuseColor = texture(textureSampler, UV).rgb;
-  vec3 materialAmbientColor = .1 * materialDiffuseColor;
+  vec3 materialAmbientColor = 0.25 * materialDiffuseColor;
 
-  float lightDist = length(lightPos - posWorldSpace);
+  float lightDist = 5; // length(lightPos - posWorldSpace);
 
   vec3 n = normalize(normalCamSpace);
   vec3 l = normalize(lightDirCamSpace);
