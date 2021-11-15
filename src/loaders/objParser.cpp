@@ -60,23 +60,21 @@ void OBJParser::digest() {
 
   else if (state == F) {
     auto [v, vt, vn] = face();
-    // vertexIndices.push_back({ v - 1, vn - 1, vt - 1 });
-    // if (++elc == 3) state = SKIP;
-    faces.back().vertices.push_back({ v - 1, vn - 1, vt - 1 });
+    faces.back().vertices.push_back({ v, vn, vt });
   }
 }
 
 unsigned int OBJParser::getVertex(const VertexIndex& vertex) {
   if (!vertexMap.contains(vertex)) {
     vertexMap.insert({ vertex, vertices.size() / 8 });
-    vertices.push_back(positions[vertex[0] * 3]);
-    vertices.push_back(positions[vertex[0] * 3 + 1]);
-    vertices.push_back(positions[vertex[0] * 3 + 2]);
-    vertices.push_back(normals[vertex[1] * 3]);
-    vertices.push_back(normals[vertex[1] * 3 + 1]);
-    vertices.push_back(normals[vertex[1] * 3 + 2]);
-    vertices.push_back(uvs[vertex[2] * 2]);
-    vertices.push_back(uvs[vertex[2] * 2 + 1]);
+    vertices.push_back(positions[vertex[0]]);
+    vertices.push_back(positions[vertex[0] + 1]);
+    vertices.push_back(positions[vertex[0] + 2]);
+    vertices.push_back(normals[vertex[1]]);
+    vertices.push_back(normals[vertex[1] + 1]);
+    vertices.push_back(normals[vertex[1] + 2]);
+    vertices.push_back(uvs[vertex[2]]);
+    vertices.push_back(uvs[vertex[2] + 1]);
   }
   return vertexMap.at(vertex);
 }
@@ -89,11 +87,13 @@ std::array<unsigned int, 3> OBJParser::face() {
   for (auto c : token + '/') {
     if (c == '/') {
       auto n = number<int>(seg);
+      if (n > 0) n--;
+      n *= i == 2 ? 2 : 3;
       if (n < 0) {
-        if (i == 0) n = positions.size() - n;
-        if (i == 1) n = normals.size() - n;
-        if (i == 2) n = uvs.size() - n;
-      }
+        if (i == 0) n = positions.size() + n;
+        if (i == 1) n = normals.size() + n;
+        if (i == 2) n = uvs.size() + n;
+      };
       inds[i++] = n;
       seg = "";
       if (i == 3) break;
