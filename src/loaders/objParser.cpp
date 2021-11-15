@@ -88,12 +88,8 @@ std::array<unsigned int, 3> OBJParser::face() {
     if (c == '/') {
       auto n = number<int>(seg);
       if (n > 0) n--;
-      n *= i == 2 ? 2 : 3;
-      if (n < 0) {
-        if (i == 0) n = positions.size() + n;
-        if (i == 1) n = normals.size() + n;
-        if (i == 2) n = uvs.size() + n;
-      };
+      n *= i == 1 ? 2 : 3;
+      if (n < 0)  n = (i == 0 ? positions : i == 1 ? uvs : normals).size() + n;
       inds[i++] = n;
       seg = "";
       if (i == 3) break;
