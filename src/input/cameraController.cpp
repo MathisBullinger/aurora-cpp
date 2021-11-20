@@ -57,4 +57,32 @@ void FPSCameraController::update(Input& input) {
   if (abs(y)) camera_.addPitch(-angle::degrees(y) / 5);
 }
 
+void FreeCameraController::update(Input& input) {
+  CameraController::update(input);
+  auto key = input.getKeyboard();
+
+  if (key.isPressed(SDLK_e))
+    camera_.rotate({ camera_.getDirView(), 1_deg });
+
+  if (key.isPressed(SDLK_q))
+    camera_.rotate({ camera_.getDirView(), -1_deg });
+
+  auto [x, y] = input.getMouse().relativeMovement();
+  if (abs(x) + abs(y) == 0) return;
+  
+  Vector<3, float> up{0,1,1};
+
+  if (abs(x)) camera_.rotate({ camera_.getDirUp(), -angle::degrees(x) / 5 });
+  if (abs(y)) camera_.rotate({ camera_.getDirRight(), -angle::degrees(y) / 5 });
+
+  auto normal = camera_.getDirView();
+  auto upBefore = normal.cross(up.cross(normal)).normal();
+  auto upAfter = camera_.getDirUp();
+
+  auto roll = angle::radians(
+    atan2(upBefore.cross(upAfter).dot(normal), upBefore.dot(upAfter))
+  );
+  if (roll) camera_.rotate({ camera_.getDirView(), -roll });
+}
+
 }

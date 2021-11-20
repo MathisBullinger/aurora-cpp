@@ -22,6 +22,7 @@ protected:
 class FreeCameraController : public CameraController {
 public:
   FreeCameraController(FreeCamera& camera);
+  void update(Input& input);
   
 private:
   FreeCamera& camera_;
