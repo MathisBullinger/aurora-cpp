@@ -48,7 +48,7 @@ public:
 private:
   RenderGraph renderGraph;
   FPSCamera camera;
-  CameraController controller{camera};
+  std::unique_ptr<CameraController> controller{CameraController::create(camera)};
 };
   
 }

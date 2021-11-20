@@ -7,7 +7,7 @@ Scene::Scene() {
   camera.move({ 0, 0, 5 });
   camera.lookAt({ 0, 0, 0 });
   
-  controller.start();
+  controller->start();
 }
 
 void Scene::render() {
