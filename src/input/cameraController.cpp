@@ -18,10 +18,10 @@ void CameraController::update(Input& input) {
     camera_.move(-camera_.getDirView() * v);
 
   if (key.isPressed(SDLK_a))
-    camera_.move(camera_.getDirRight() * v);
+    camera_.move(-camera_.getDirRight() * v);
 
   if (key.isPressed(SDLK_d))
-    camera_.move(camera_.getDirRight() * -v);
+    camera_.move(camera_.getDirRight() * v);
 
   if (key.isPressed(SDLK_LSHIFT))
     camera_.move(camera_.getDirUp() * v);
@@ -29,9 +29,15 @@ void CameraController::update(Input& input) {
   if (key.isPressed(SDLK_LCTRL))
     camera_.move(camera_.getDirUp() * -v);
 
+  if (key.isPressed(SDLK_e))
+    camera_.roll(angle::degrees(-1));
+
+  if (key.isPressed(SDLK_q))
+    camera_.roll(angle::degrees(1));
+
   auto [x, y] = input.getMouse().relativeMovement();
-  if (abs(x)) camera_.addYaw(angle::degrees(x) / 5);
-  if (abs(y)) camera_.addPitch(angle::degrees(y) / 5);
+  if (abs(x)) camera_.addYaw(-angle::degrees(x) / 5);
+  if (abs(y)) camera_.addPitch(-angle::degrees(y) / 5);
 };
 
 }

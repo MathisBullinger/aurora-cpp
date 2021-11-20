@@ -59,6 +59,7 @@ public:
   void addPitch(angle pitch);
   void lookIn(const Vector<3, float>& direction);
   void lookAt(const Vector<3, float>& target);
+  void roll(angle dr);
   
   Vector<3, float> getDirView() const;
   Vector<3, float> getDirUp() const;
@@ -66,8 +67,9 @@ public:
 
 private:
   void generateView();
-  angle pitch_ = 0_deg;
+  angle pitch_ = 0_rad;
   angle yaw_ = angle::radians(atan2(-initialZ[2], -initialZ[0]));
+  angle roll_ = 0_rad;
 };
 
 }
