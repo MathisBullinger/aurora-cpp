@@ -20,9 +20,9 @@ void FPSCamera::lookIn(const Vector<3, float>& direction) {
   assert(direction.isNormalized());
   auto [x, y, z] = direction;
   auto pSum = abs(x) + abs(y) + abs(z);
-  pitch_ = angle::degrees( 90 * (abs(y) / pSum) );
+  pitch_ = -angle::degrees( 90 * (abs(y) / pSum) );
   if (direction[1] > 0) pitch_ *= -1;
-  yaw_ = angle::radians(atan2(-direction[2], -direction[0]));
+  yaw_ = angle::radians(atan2(-direction[0], -direction[2]));
   dirty_ = true;
 }
 
@@ -36,24 +36,21 @@ void FPSCamera::roll(angle dr) {
 }
 
 Vector<3, float> FPSCamera::getDirView() const {
-  return { -sin(yaw_) * cos(pitch_), sin(pitch_), cos(yaw_) * cos(pitch_) };
+  return { -sin(yaw_) * cos(pitch_), sin(pitch_), -cos(yaw_) * cos(pitch_) };
 }
 
 Vector<3, float> FPSCamera::getDirRight() const {
-  return Quaternion{getDirView(), roll_} * Vector<3, float>{cos(yaw_), 0, sin(yaw_)};
+  return { cos(yaw_), 0, -sin(yaw_) };
 }
 
 Vector<3, float> FPSCamera::getDirUp() const {
-  return getDirView().cross(getDirRight());
+  return getDirRight().cross(getDirView());
 }
 
 void FPSCamera::generateView() {
   auto x = getDirRight();
   auto y = getDirUp();
   auto z = -getDirView();
-
-  assert(abs(x.dot(z)) < 1e-5);
-  assert(y.isNormalized());
 
   view_.write<3, 4>({
     x[0], x[1], x[2], -x.dot(position_),

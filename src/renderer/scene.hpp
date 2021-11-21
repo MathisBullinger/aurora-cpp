@@ -38,7 +38,7 @@ public:
   void render();
 
   void addObject(
-    Shader* shader, 
+    Shader* shader,
     Mesh* mesh, 
     const vec3<float>& translate, 
     const vec3<float>& scale,

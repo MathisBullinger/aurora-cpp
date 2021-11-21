@@ -192,7 +192,7 @@ struct Euler : public Vector<3, angle> {
   Euler(T yaw, T pitch, T roll) 
     : Vector<3, angle>{angle::radians(yaw), angle::radians(pitch), angle::radians(roll)} {};
   
-  angle yaw() /* φ */ const {
+  angle yaw() /* ψ */ const {
     return values[0];
   }
   
@@ -200,7 +200,7 @@ struct Euler : public Vector<3, angle> {
     return values[1];
   }
 
-  angle roll() /* ψ */ const {
+  angle roll() /* φ */ const {
     return values[2];
   }
 };

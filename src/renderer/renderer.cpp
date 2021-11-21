@@ -16,7 +16,7 @@ namespace aur {
 Renderer::Renderer() {
   GLC(glEnable(GL_DEPTH_TEST));
   GLC(glDepthFunc(GL_LESS));
-  // GLC(glEnable(GL_CULL_FACE));
+  GLC(glEnable(GL_CULL_FACE));
 
   auto shader = Shader::get("basic.vert", "basic.frag");
   shader->use();

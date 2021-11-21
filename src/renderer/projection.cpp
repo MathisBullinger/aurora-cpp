@@ -23,5 +23,5 @@ void Perspective::compute() {
   projection_[{2, 3}] = -(2 * far_ * near_) / (far_ - near_);
   projection_[{3, 2}] = -1.f;
 }
-  
+
 }

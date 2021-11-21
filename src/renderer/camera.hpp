@@ -33,7 +33,7 @@ protected:
   Matrix<4, 4, float> view_;
   Vector<3, float> position_;
   bool dirty_ = true;
-  const Vector<3, float> initialZ{ 0, 0, 1 };
+  const Vector<3, float> initialZ{ 0, 0, -1 };
   const Vector<3, float> initialY{ 0, 1, 0 };
 };
 
@@ -68,7 +68,7 @@ public:
 private:
   void generateView();
   angle pitch_ = 0_rad;
-  angle yaw_ = angle::radians(atan2(-initialZ[2], -initialZ[0]));
+  angle yaw_ = 0_rad;
   angle roll_ = 0_rad;
 };
 
