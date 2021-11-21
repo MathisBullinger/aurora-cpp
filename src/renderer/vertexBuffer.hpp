@@ -4,14 +4,20 @@ namespace aur {
 
 class VertexBuffer {
 public:
-  VertexBuffer(const void* data, unsigned int size);
+  VertexBuffer(void* data, unsigned int size, bool store = false);
   ~VertexBuffer();
   
   void bind() const;
   void unbind() const;
 
+  const void* getData() const;
+  void free();
+  int getSize() const;
+
 private:
-  unsigned int id;
+  unsigned int id_;
+  unsigned int size_;
+  void* data_ = nullptr;
 };
   
 }

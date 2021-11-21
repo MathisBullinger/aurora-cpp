@@ -25,7 +25,7 @@ void Scene::render() {
     shader->setUniform("lightPosCamSpace", (camera.viewMatrix() * lightPos).fit<3>());
 
     for (auto& [mesh, objects] : meshes) {
-      // ...bind mesh
+      mesh->bind();
 
       for (auto& obj : objects) {
         auto model = obj.getModel();

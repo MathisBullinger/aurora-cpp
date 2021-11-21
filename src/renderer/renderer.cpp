@@ -16,21 +16,18 @@ namespace aur {
 Renderer::Renderer() {
   GLC(glEnable(GL_DEPTH_TEST));
   GLC(glDepthFunc(GL_LESS));
+  // GLC(glEnable(GL_CULL_FACE));
 
   auto shader = Shader::get("basic.vert", "basic.frag");
   shader->use();
+  
+  boxMesh = new Mesh("../resources/meshes/box.obj");
 
-  unsigned int vao;
-  GLC(glGenVertexArrays(1, &vao));
-  GLC(glBindVertexArray(vao));
-
-  boxMesh = new Mesh("../resources/meshes/balloon.obj");
-
-  float scale = .01;
+  float scale = 1;
   scene.addObject(shader, boxMesh, {0,0,0}, {scale,scale,scale}, {});
 
   loader::Texture textureLoader;
-  auto texId = textureLoader.loadBMP("../resources/textures/porcelain.bmp");
+  auto texId = textureLoader.loadBMP("../resources/textures/skybox/front.bmp");
   glBindTexture(GL_TEXTURE_2D, texId);
 }
 

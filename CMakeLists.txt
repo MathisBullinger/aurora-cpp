@@ -23,6 +23,7 @@ add_executable(${PROJECT_NAME}
   src/renderer/cameraFree.cpp
   src/renderer/cameraFPS.cpp
   src/renderer/projection.cpp
+  src/renderer/vertexArray.cpp
   src/loaders/texture.cpp
   src/loaders/mesh.cpp
   src/loaders/objParser.cpp
