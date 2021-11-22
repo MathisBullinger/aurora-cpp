@@ -31,7 +31,7 @@ int aur::loader::bmp(const std::string& path, void** data, unsigned int* width, 
 
   *data = new char [imageSize];
 
-  fseek(file, dataPos, SEEK_CUR);
+  fseek(file, dataPos, SEEK_SET);
   fread(*data, 1, imageSize, file);
   fclose(file);
 
