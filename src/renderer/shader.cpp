@@ -1,13 +1,11 @@
 #include "shader.hpp"
 #include "util/gl.hpp"
-
-#include <iostream>
+#include "util/path.hpp"
 
 namespace aur {
 
 unsigned int Shader::currentProgram = 0;
 std::map<ShaderName, Shader*> Shader::shaderMap;
-std::string Shader::shaderDir = "";
 
 Shader::Shader(const std::string& vert_path, const std::string& frag_path) 
 : program(glCreateProgram()) {
@@ -72,8 +70,8 @@ std::string Shader::type2Str(GLenum type) {
 Shader* Shader::get(const std::string& vertex, const std::string& fragment) {
   if (!shaderMap.contains({vertex, fragment})) 
     shaderMap.insert({{vertex, fragment}, new Shader(
-      basePath() + vertex,
-      basePath() + fragment
+      path::join(path::SHADERS, vertex),
+      path::join(path::SHADERS, fragment)
     )});
 
   return shaderMap.at({vertex, fragment});
@@ -81,20 +79,6 @@ Shader* Shader::get(const std::string& vertex, const std::string& fragment) {
 
 void Shader::deleteShaders() {
   for (const auto& v : shaderMap) delete v.second;
-}
-
-std::string Shader::basePath() {
-  if (shaderDir.size()) return shaderDir;
-
-  auto path = std::filesystem::current_path();
-  while (true) {
-    if (std::filesystem::is_directory(std::filesystem::status(std::string(path) + "/resources/shaders"))) break;
-    auto parent = path.parent_path();
-    if (path == parent) throw std::runtime_error("can't find shader directory");
-    path = parent;
-  }
-
-  return shaderDir = std::string(path) + "/resources/shaders/";
 }
 
 int Shader::getUniform(const std::string& name) {

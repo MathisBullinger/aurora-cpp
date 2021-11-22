@@ -73,8 +73,8 @@ unsigned int OBJParser::getVertex(const VertexIndex& vertex) {
     vertices.push_back(normals[vertex[1]]);
     vertices.push_back(normals[vertex[1] + 1]);
     vertices.push_back(normals[vertex[1] + 2]);
-    vertices.push_back(uvs[vertex[2]]);
-    vertices.push_back(uvs[vertex[2] + 1]);
+    vertices.push_back(uvs.size() > vertex[2] ? uvs[vertex[2]] : 0);
+    vertices.push_back(uvs.size() > vertex[2] + 1 ? uvs[vertex[2] + 1] : 0);
   }
   return vertexMap.at(vertex);
 }

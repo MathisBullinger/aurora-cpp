@@ -7,7 +7,6 @@
 #include <exception>
 #include <array>
 #include <map>
-#include <filesystem>
 #include "math/matrix.hpp"
 #include "math/vector.hpp"
 
@@ -39,9 +38,6 @@ private:
   std::string read(const std::string& path);
   unsigned int compile(unsigned int type, const std::string& source);
   std::string type2Str(GLenum type);
-
-  static std::string shaderDir;
-  static std::string basePath();
 };
 
 }

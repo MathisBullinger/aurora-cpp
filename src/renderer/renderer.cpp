@@ -7,31 +7,28 @@
 #include <cmath>
 #include <vector>
 #include <GL/glew.h>
-
-#include "loaders/texture.hpp"
-#include "loaders/mesh.hpp"
+#include "renderer/texture.hpp"
 
 namespace aur {
 
 Renderer::Renderer() {
   GLC(glEnable(GL_DEPTH_TEST));
   GLC(glDepthFunc(GL_LESS));
-  GLC(glEnable(GL_CULL_FACE));
+  // GLC(glEnable(GL_CULL_FACE));
 
   auto shader = Shader::get("basic.vert", "basic.frag");
   shader->use();
   
-  boxMesh = new Mesh("../resources/meshes/box.obj");
+  boxMesh = new Mesh("box.obj");
 
   float scale = 1;
   scene.addObject(shader, boxMesh, {0,0,0}, {scale,scale,scale}, {});
 
-  loader::Texture textureLoader;
-  auto texId = textureLoader.loadBMP("../resources/textures/skybox/front.bmp");
-  glBindTexture(GL_TEXTURE_2D, texId);
+  Texture::get("porcelain.bmp")->bind();
 }
 
 Renderer::~Renderer() {
+  Texture::deleteTextures();
   Shader::deleteShaders();
   delete boxMesh;
 };

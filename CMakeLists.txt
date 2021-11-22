@@ -24,6 +24,7 @@ add_executable(${PROJECT_NAME}
   src/renderer/cameraFPS.cpp
   src/renderer/projection.cpp
   src/renderer/vertexArray.cpp
+  src/renderer/texture.cpp
   src/loaders/texture.cpp
   src/loaders/mesh.cpp
   src/loaders/objParser.cpp
@@ -31,6 +32,7 @@ add_executable(${PROJECT_NAME}
   src/input/mouse.cpp
   src/input/inputReceiver.cpp
   src/input/cameraController.cpp
+  src/util/path.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE 
   SDL2::SDL2main 
