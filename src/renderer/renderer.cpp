@@ -14,7 +14,7 @@ namespace aur {
 Renderer::Renderer() {
   GLC(glEnable(GL_DEPTH_TEST));
   GLC(glDepthFunc(GL_LESS));
-  // GLC(glEnable(GL_CULL_FACE));
+  GLC(glEnable(GL_CULL_FACE));
 
   auto shader = Shader::get("basic.vert", "basic.frag");
   shader->use();
@@ -24,7 +24,7 @@ Renderer::Renderer() {
   float scale = 1;
   scene.addObject(shader, boxMesh, {0,0,0}, {scale,scale,scale}, {});
 
-  Texture::get("porcelain.bmp")->bind();
+  Texture::get<Texture2D>("porcelain.bmp")->bind();
 }
 
 Renderer::~Renderer() {

@@ -176,11 +176,11 @@ public:
   };
 
   template <unsigned int R, unsigned int C>
-  void write(const std::array<T, R * C>& values, unsigned int row = 0, unsigned int column = 0) {
+  void write(const Matrix<R, C>& values, unsigned int row = 0, unsigned int column = 0) {
     assert(row + R <= rows && column + C <= columns);
     for (unsigned int r = row; r < R; r++)
       for (unsigned int c = column; c < C; c++)
-        (*this)[{r, c}] = values[r * C + c];
+        (*this)[{r, c}] = values[{ r - row, c - column }];
   }
 
   template <unsigned int R, unsigned int C, typename N>

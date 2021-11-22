@@ -62,27 +62,18 @@ void FreeCameraController::update(Input& input) {
   auto key = input.getKeyboard();
 
   if (key.isPressed(SDLK_e))
-    camera_.rotate({ camera_.getDirView(), 1_deg });
+    camera_.rotate({ camera_.getDirView(), 2_deg });
 
   if (key.isPressed(SDLK_q))
-    camera_.rotate({ camera_.getDirView(), -1_deg });
+    camera_.rotate({ camera_.getDirView(), -2_deg });
 
   auto [x, y] = input.getMouse().relativeMovement();
   if (abs(x) + abs(y) == 0) return;
-  
-  Vector<3, float> up{0,1,1};
 
-  if (abs(x)) camera_.rotate({ camera_.getDirUp(), -angle::degrees(x) / 5 });
-  if (abs(y)) camera_.rotate({ camera_.getDirRight(), -angle::degrees(y) / 5 });
-
-  auto normal = camera_.getDirView();
-  auto upBefore = normal.cross(up.cross(normal)).normal();
-  auto upAfter = camera_.getDirUp();
-
-  auto roll = angle::radians(
-    atan2(upBefore.cross(upAfter).dot(normal), upBefore.dot(upAfter))
-  );
-  if (roll) camera_.rotate({ camera_.getDirView(), -roll });
+  Quaternion yaw   { camera_.getDirUp(),    -angle::degrees(x) / 5 };
+  Quaternion pitch { camera_.getDirRight(), -angle::degrees(y) / 5 };
+  camera_.rotate(yaw);
+  camera_.rotate(pitch);
 }
 
 }

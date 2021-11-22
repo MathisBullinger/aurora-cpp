@@ -49,6 +49,7 @@ private:
   RenderGraph renderGraph;
   FPSCamera camera;
   std::unique_ptr<CameraController> controller{CameraController::create(camera)};
+  Mesh skybox{"cube.obj"};
 };
   
 }

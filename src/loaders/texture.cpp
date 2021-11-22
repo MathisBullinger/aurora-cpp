@@ -2,9 +2,7 @@
 #include <iostream>
 #include "util/path.hpp"
 
-namespace aur::loader {
-
-int Texture::loadBMP(const std::string& path, void** data, unsigned int* width, unsigned int* height) {
+int aur::loader::bmp(const std::string& path, void** data, unsigned int* width, unsigned int* height) {
   auto file = fopen(path::join(path::TEXTURES, path).c_str(), "rb");
   if (!file) {
     std::cerr << "couldn't open file: " << path << std::endl;
@@ -57,6 +55,4 @@ int Texture::loadBMP(const std::string& path, void** data, unsigned int* width, 
 
   delete org;
   return *width * *height * 3;
-}
-  
 }

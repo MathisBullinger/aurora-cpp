@@ -1,5 +1,7 @@
 #include "./scene.hpp"
 #include "util/gl.hpp"
+#include "renderer/texture.hpp"
+#include "renderer/cubemap.hpp"
 
 namespace aur {
 
@@ -13,6 +15,25 @@ Scene::Scene() {
 void Scene::render() {
   auto view = camera.viewMatrix();
   auto VP = camera.projectionMatrix() * camera.viewMatrix();
+
+  GLC(glDepthMask(GL_FALSE));
+  GLC(glCullFace(GL_FRONT));
+
+  auto skyboxShader = Shader::get("skybox.vert", "skybox.frag");
+  skyboxShader->use();
+
+  Matrix<4, 4> skyView;
+  skyView.write<3, 3>(camera.viewMatrix());
+  Matrix<4, 4> skyVP = camera.projectionMatrix() * skyView;
+  skyboxShader->setUniform("transform", skyVP);
+
+  Texture::get<Cubemap>("skybox/")->bind();
+  
+  skybox.bind();
+  GLC(glDrawElements(GL_TRIANGLES, skybox.countIndices(), GL_UNSIGNED_INT, 0));
+  
+  GLC(glDepthMask(GL_TRUE));
+  GLC(glCullFace(GL_BACK));
 
   for (auto& [shader, meshes] : renderGraph) {
     shader->use();
@@ -30,7 +51,7 @@ void Scene::render() {
       for (auto& obj : objects) {
         auto model = obj.getModel();
         auto MVP = VP * model;
-        auto normal = (Matrix<3, 3>(camera.viewMatrix()) * Matrix<3, 3>(model)).inverse().transpose();
+        auto normal = (Matrix<3, 3>{camera.viewMatrix()} * Matrix<3, 3>(model)).inverse().transpose();
 
         shader->setUniform("MVP", MVP);
         shader->setUniform("model", model);
