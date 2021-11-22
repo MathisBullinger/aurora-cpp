@@ -8,5 +8,6 @@ uniform mat4 transform;
 
 void main() {
   texCoords = vec3(pos.x, -pos.y, pos.z);
-  gl_Position = transform * vec4(pos, 1);
+  vec4 pos_ = transform * vec4(pos, 1);
+  gl_Position = pos_.xyww;
 }
