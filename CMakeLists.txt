@@ -11,7 +11,7 @@ find_package(GLEW REQUIRED)
 
 add_executable(${PROJECT_NAME} 
   src/main.cpp
-  src/engine.cpp
+  src/app.cpp
   src/window/window.cpp
   src/renderer/renderer.cpp
   src/renderer/shader.cpp

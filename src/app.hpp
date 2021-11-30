@@ -13,9 +13,9 @@ using namespace std::chrono;
 
 namespace aur {
 
-class Engine {
+class App {
 public:
-  ~Engine();
+  ~App();
   
   void start();
 

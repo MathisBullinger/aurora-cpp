@@ -1,18 +1,18 @@
-#include "engine.hpp"
+#include "app.hpp"
 #include "input/inputReceiver.hpp"
 
 namespace aur {
 
-void Engine::start() {
+void App::start() {
   run();
 }
 
-Engine::~Engine() {
+App::~App() {
   for (auto window : windows) delete window;
   windows.clear();
 }
 
-void Engine::run() {
+void App::run() {
   running = true;
   auto frametime = duration_cast<microseconds>(seconds(1)) / 60;
 
@@ -38,13 +38,13 @@ void Engine::run() {
   }
 }
 
-void Engine::processEvents() {
+void App::processEvents() {
   input.getMouse().reset();
   SDL_Event event;
   while (SDL_PollEvent(&event) != 0) handleEvent(event);
 }
 
-void Engine::handleEvent(SDL_Event& event) {
+void App::handleEvent(SDL_Event& event) {
   switch (event.type) {
     case SDL_QUIT:
       running = false;
@@ -64,13 +64,13 @@ void Engine::handleEvent(SDL_Event& event) {
   }
 }
 
-Window* Engine::openWindow() {
+Window* App::openWindow() {
   Window* window = new Window();
   windows.push_back(window);
   return window;
 }
 
-Window* Engine::closeWindow(Window* window) {
+Window* App::closeWindow(Window* window) {
   auto it = std::find(windows.begin(), windows.end(), window);
   if (it == windows.end()) return window;
   windows.erase(it);

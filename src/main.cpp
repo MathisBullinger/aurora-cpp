@@ -1,9 +1,9 @@
-#include "engine.hpp"
+#include "app.hpp"
 
 int main() {
-  aur::Engine engine;
-  engine.openWindow();
-  engine.start();
+  aur::App app;
+  app.openWindow();
+  app.start();
 
   return 0;
 }

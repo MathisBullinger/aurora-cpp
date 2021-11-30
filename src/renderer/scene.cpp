@@ -26,17 +26,19 @@ void Scene::render() {
     shader->setUniform("lightPos", lightPos.fit<3>());
     shader->setUniform("lightPosCamSpace", (camera.viewMatrix() * lightPos).fit<3>());
 
+    shader->setUniform("eyePos", camera.getPosition());
+
     for (auto& [mesh, objects] : meshes) {
       mesh->bind();
 
       for (auto& obj : objects) {
         auto model = obj.getModel();
         auto MVP = VP * model;
-        auto normal = (Matrix<3, 3>{camera.viewMatrix()} * Matrix<3, 3>(model)).inverse().transpose();
+        auto normal = Matrix<3, 3>(model).inverse().transpose();
 
-        shader->setUniform("MVP", MVP);
         shader->setUniform("model", model);
-        shader->setUniform("normal", normal);
+        shader->setUniform("VP", VP);
+        shader->setUniform("normalMat", normal);
 
         GLC(glDrawElements(GL_TRIANGLES, mesh->countIndices(), GL_UNSIGNED_INT, 0));
       }
