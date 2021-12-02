@@ -1,5 +1,6 @@
 #include "./mesh.hpp"
 #include "loaders/mesh.hpp"
+#include "loaders/objParser.hpp"
 #include <GL/glew.h>
 #include "util/gl.hpp"
 #include <vector>
@@ -8,8 +9,8 @@ namespace aur {
 
 Mesh::Mesh(const std::string& path, Vector<3, float> translate) {
   std::vector<float> vertices;
-  std::vector<unsigned int> indices;
-  loader::mesh::loadOBJ(path, vertices, indices);
+  loader::mesh::MTLMap materials;
+  loader::mesh::loadOBJ(path, vertices, materials);
 
   if (translate[0] != 0 || translate[1] != 0 || translate[2] != 0)
     for (unsigned int i = 0; i < vertices.size(); i+=8)
@@ -25,12 +26,15 @@ Mesh::Mesh(const std::string& path, Vector<3, float> translate) {
   layout.push<float>(2);
 
   vertexArray.addBuffer(*vertexBuffer, layout);
-  indexBuffer = new IndexBuffer(&indices[0], indices.size());
+
+  for (auto& [material, indices] : materials)
+    mtlBuffers.insert({ material, new IndexBuffer(&indices[0], indices.size()) });
 }
 
 Mesh::~Mesh() {
   delete vertexBuffer;
-  delete indexBuffer;
+  for (auto& [m, indBuf] : mtlBuffers) delete indBuf;
+  mtlBuffers.clear();
 }
 
 void Mesh::bind() const {
@@ -41,9 +45,8 @@ void Mesh::unbind() const {
   vertexArray.unbind();
 }
 
-int Mesh::countIndices() const {
-  if (!indexBuffer) return 0;
-  return indexBuffer->count;
+const std::map<Material*, IndexBuffer*>& Mesh::getMaterials() const {
+  return mtlBuffers;
 }
 
 Vector<3, float> Mesh::minPos() const {

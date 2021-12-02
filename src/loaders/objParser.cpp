@@ -1,4 +1,5 @@
 #include "./objParser.hpp"
+#include <iostream>
 
 namespace aur::loader::mesh {
 
@@ -6,14 +7,16 @@ const std::map<std::string, OBJParser::State> OBJParser::types = {
   { "v", V },
   { "vn", VN },
   { "vt", VT },
-  { "f", F }
+  { "f", F },
+  { "usemtl", MTL }
 };
 
 OBJParser::OBJParser(
+  const std::string& id,
   std::ifstream& stream, 
   std::vector<float>& vertices,
-  std::vector<unsigned int>& indices
-): file{stream}, vertices{vertices}, indices{indices} {};
+  MTLMap& mtlMap
+): file{stream}, vertices{vertices}, mtlMap{mtlMap}, id{id} {};
 
 void OBJParser::parse() {
   for (char c; file.get(c);) {
@@ -26,9 +29,14 @@ void OBJParser::parse() {
     else token += c;
   }
 
-  for (auto& face : faces)
-    for (auto vertex : face.triangulate())
-      indices.push_back(getVertex(vertex));
+  for (auto& [m, faces] : materialFaces) {
+    auto material = Material::get(id + m, {1, .5, .31}, {1, .5, .31}, {.5, .5, .5});
+    
+    if (!mtlMap.contains(material)) mtlMap.insert({ material, {} });
+    for (auto& face : faces)
+      for (auto vertex : face.triangulate())
+        mtlMap.at(material).push_back(getVertex(vertex));
+  }
 }
 
 void OBJParser::digest() {
@@ -38,7 +46,7 @@ void OBJParser::digest() {
     }
     else {
       state = OBJParser::types.at(token);
-      if (state == F) faces.push_back({});
+      if (state == F) getFaces(material).push_back({});
       elc = 0;
     }
   }
@@ -60,7 +68,11 @@ void OBJParser::digest() {
 
   else if (state == F) {
     auto [v, vt, vn] = face();
-    faces.back().vertices.push_back({ v, vn, vt });
+    getFaces(material).back().vertices.push_back({ v, vn, vt });
+  }
+
+  else if (state == MTL) {
+    material = token;
   }
 }
 
@@ -77,6 +89,11 @@ unsigned int OBJParser::getVertex(const VertexIndex& vertex) {
     vertices.push_back(uvs.size() > vertex[2] + 1 ? uvs[vertex[2] + 1] : 0);
   }
   return vertexMap.at(vertex);
+}
+
+std::vector<Face>& OBJParser::getFaces(const std::string& material) {
+  if (!materialFaces.contains(material)) materialFaces.insert({material, {}});
+  return materialFaces.at(material);
 }
 
 std::array<unsigned int, 3> OBJParser::face() {

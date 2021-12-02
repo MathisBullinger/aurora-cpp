@@ -1,11 +1,12 @@
 #pragma once
 
 #include <string>
-#include <iterator>
+#include <map>
 #include "renderer/vertexBuffer.hpp"
 #include "renderer/indexBuffer.hpp"
 #include "renderer/vertexArray.hpp"
 #include "math/vector.hpp"
+#include "renderer/material.hpp"
 
 namespace aur {
 
@@ -14,7 +15,7 @@ public:
   Mesh(const std::string& path, Vector<3, float> translate = {0,0,0});
   ~Mesh();
   
-  int countIndices() const;
+  const std::map<Material*, IndexBuffer*>& getMaterials() const;
   Vector<3, float> minPos() const;
   Vector<3, float> maxPos() const;
 
@@ -24,7 +25,7 @@ public:
 private:
   VertexArray vertexArray;
   VertexBuffer* vertexBuffer = nullptr;
-  IndexBuffer* indexBuffer = nullptr;
+  std::map<Material*, IndexBuffer*> mtlBuffers;
 };
   
 }

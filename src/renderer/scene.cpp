@@ -26,11 +26,11 @@ void Scene::render() {
     shader->setUniform("material.specular", .5, .5, .5);
     shader->setUniform("material.shine", 32);
 
-    auto lp = (camera.viewMatrix() * Vector<4, float>{500, 500, 500, 1});
+    auto lp = (camera.viewMatrix() * Vector<4, float>{-200, 250, -500, 1});
     shader->setUniform("light.pos", lp.x(), lp.y(), lp.z());
     shader->setUniform("light.ambient", .2, .2, .2);
     shader->setUniform("light.diffuse", .5, .5, .5);
-    shader->setUniform("light.specular", 1.f, 1.f, 1.f);
+    shader->setUniform("light.specular", 1, 1, 1);
 
     shader->setUniform("eyePos", camera.getPosition());
 
@@ -46,7 +46,10 @@ void Scene::render() {
         shader->setUniform("MVP", MVP);
         shader->setUniform("normal", normal);
 
-        GLC(glDrawElements(GL_TRIANGLES, mesh->countIndices(), GL_UNSIGNED_INT, 0));
+        for (auto& [mtl, indexBuffer] : mesh->getMaterials()) {
+          indexBuffer->bind();
+          GLC(glDrawElements(GL_TRIANGLES, indexBuffer->count, GL_UNSIGNED_INT, 0));
+        }
       }
     }
   }
@@ -62,9 +65,11 @@ void Scene::render() {
   
   Texture::get<Cubemap>("skybox/")->bind();
   skybox.bind();
+  auto ind = skybox.getMaterials().begin()->second;
+  ind->bind();
   
   GLC(glCullFace(GL_FRONT));
-  GLC(glDrawElements(GL_TRIANGLES, skybox.countIndices(), GL_UNSIGNED_INT, 0));
+  GLC(glDrawElements(GL_TRIANGLES, ind->count, GL_UNSIGNED_INT, 0));
   GLC(glCullFace(GL_BACK));
 }
 

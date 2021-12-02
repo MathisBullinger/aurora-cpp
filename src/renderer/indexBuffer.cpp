@@ -4,7 +4,7 @@
 
 namespace aur {
 
-IndexBuffer::IndexBuffer(const unsigned int* data, unsigned int count): count{count} {
+IndexBuffer::IndexBuffer(const unsigned int* data, const unsigned int count): count{count} {
   GLC(glGenBuffers(1, &id));
   GLC(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id));
   GLC(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW));

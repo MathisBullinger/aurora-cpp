@@ -1,14 +1,16 @@
 #pragma once
 
-#include "./mesh.hpp"
 #include <string>
 #include <map>
 #include <array>
 #include <fstream>
+#include <vector>
+#include "renderer/material.hpp"
 
 namespace aur::loader::mesh {
 
 using VertexIndex = std::array<unsigned int, 3>;
+using MTLMap = std::map<Material*, std::vector<unsigned int>>;
 
 struct Face {
   std::vector<VertexIndex> triangulate() const;
@@ -18,9 +20,10 @@ struct Face {
 class OBJParser {
 public:
   OBJParser(
+    const std::string& id,
     std::ifstream& stream, 
     std::vector<float>& vertices,
-    std::vector<unsigned int>& indices
+    MTLMap& mtlMap
   );
 
   void parse();
@@ -43,19 +46,23 @@ private:
   std::ifstream& file;
   std::string token;
 
-  enum State { NEW, SKIP, V, VN, VT, F };
+  enum State { NEW, SKIP, V, VN, VT, F, MTL };
   State state = NEW;
   unsigned int elc = 0;
 
   std::vector<float>& vertices;
-  std::vector<unsigned int>& indices;
+  MTLMap& mtlMap;
   static const std::map<std::string, State> types;
 
   std::vector<float> positions;
   std::vector<float> normals;
   std::vector<float> uvs;
 
-  std::vector<Face> faces;
+  std::vector<Face>& getFaces(const std::string& material);
+
+  std::map<std::string, std::vector<Face>> materialFaces;
+  std::string material = "none";
+  const std::string id;
 };
 
 }

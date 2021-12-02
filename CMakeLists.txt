@@ -26,9 +26,11 @@ add_executable(${PROJECT_NAME}
   src/renderer/vertexArray.cpp
   src/renderer/texture.cpp
   src/renderer/cubemap.cpp
+  src/renderer/material.cpp
   src/loaders/texture.cpp
   src/loaders/mesh.cpp
   src/loaders/objParser.cpp
+  src/loaders/mtlParser.cpp
   src/input/keyboard.cpp
   src/input/mouse.cpp
   src/input/inputReceiver.cpp
