@@ -8,13 +8,10 @@ out vec2 UV;
 out vec3 posWorldSpace;
 out vec3 normalCamSpace;
 out vec3 eyeDirCamSpace;
-out vec3 lightDirCamSpace;
 
 uniform mat4 MVP;
 uniform mat4 view;
 uniform mat4 model;
-uniform vec3 lightPos;
-uniform vec3 lightPosCamSpace;
 uniform mat3 normal;
 
 void main() {
@@ -24,6 +21,5 @@ void main() {
   posWorldSpace = (model * vec4(vertexPosition, 1)).xyz;
   vec3 posCam = (view * vec4(posWorldSpace, 1)).xyz;
   eyeDirCamSpace = -posCam;
-  lightDirCamSpace = lightPosCamSpace + eyeDirCamSpace;
   normalCamSpace = normal * vertexNormal;
 }

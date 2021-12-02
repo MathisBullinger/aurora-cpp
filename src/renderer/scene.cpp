@@ -26,10 +26,11 @@ void Scene::render() {
     shader->setUniform("material.specular", .5, .5, .5);
     shader->setUniform("material.shine", 32);
 
-    Vector<4, float> lightPos{500, 500, 500, 1};
-    
-    shader->setUniform("lightPos", lightPos.fit<3>());
-    shader->setUniform("lightPosCamSpace", (camera.viewMatrix() * lightPos).fit<3>());
+    auto lp = (camera.viewMatrix() * Vector<4, float>{500, 500, 500, 1});
+    shader->setUniform("light.pos", lp.x(), lp.y(), lp.z());
+    shader->setUniform("light.ambient", .2, .2, .2);
+    shader->setUniform("light.diffuse", .5, .5, .5);
+    shader->setUniform("light.specular", 1.f, 1.f, 1.f);
 
     shader->setUniform("eyePos", camera.getPosition());
 

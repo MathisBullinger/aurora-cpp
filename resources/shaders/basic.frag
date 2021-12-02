@@ -4,7 +4,6 @@ in vec2 UV;
 in vec3 posWorldSpace;
 in vec3 normalCamSpace;
 in vec3 eyeDirCamSpace;
-in vec3 lightDirCamSpace;
 
 out vec3 color;
 
@@ -19,20 +18,25 @@ struct Material {
 };
 uniform Material material;
 
-const vec3 lightColor = vec3(1);
-const float lightPower = 30;
-const vec3 materialSpecularColor = vec3(.3);
+struct Light {
+  vec3 pos;
+  vec3 ambient;
+  vec3 diffuse;
+  vec3 specular;
+};
+uniform Light light;
 
 void main() {
-  vec3 ambient = lightColor * material.ambient;
+  vec3 lightDir = normalize(light.pos + eyeDirCamSpace);
+  
+  vec3 ambient = light.ambient * material.ambient;
 
-  vec3 lightDir = normalize(lightDirCamSpace);
   float diff = max(dot(normalize(normalCamSpace), lightDir), 0);
-  vec3 diffuse = lightColor * diff * material.diffuse;
+  vec3 diffuse = light.diffuse * diff * material.diffuse;
 
   vec3 reflectDir = reflect(-lightDir, normalCamSpace);
   float spec = pow(max(dot(normalize(eyeDirCamSpace), reflectDir), 0), material.shine);
-  vec3 specular = lightColor * spec * material.specular;
+  vec3 specular = light.specular * spec * material.specular;
 
   color = ambient + diffuse + specular;
 }
