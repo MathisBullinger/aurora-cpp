@@ -21,11 +21,6 @@ void Scene::render() {
 
     shader->setUniform("view", camera.viewMatrix());
 
-    shader->setUniform("material.ambient", 1, .5, .31);
-    shader->setUniform("material.diffuse", 1, .5, .31);
-    shader->setUniform("material.specular", .5, .5, .5);
-    shader->setUniform("material.shine", 32);
-
     auto lp = (camera.viewMatrix() * Vector<4, float>{-200, 250, -500, 1});
     shader->setUniform("light.pos", lp.x(), lp.y(), lp.z());
     shader->setUniform("light.ambient", .2, .2, .2);
@@ -50,6 +45,7 @@ void Scene::render() {
           shader->setUniform("material.ambient", mtl->ambient);
           shader->setUniform("material.diffuse", mtl->diffuse);
           shader->setUniform("material.specular", mtl->specular);
+          shader->setUniform("material.specExp", mtl->specExp);
           indexBuffer->bind();
           GLC(glDrawElements(GL_TRIANGLES, indexBuffer->count, GL_UNSIGNED_INT, 0));
         }

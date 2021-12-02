@@ -38,6 +38,7 @@ std::map<std::string, Material*> parseMTL(const std::string& path) {
     if (parts[0] == "Ka") material->ambient = cl;
     if (parts[0] == "Kd") material->diffuse = cl;
     if (parts[0] == "Ks") material->specular = cl;
+    if (parts[0] == "Ns") material->specExp = std::stod(parts[1]);
   }
   
   return materials;

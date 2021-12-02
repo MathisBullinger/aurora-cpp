@@ -14,7 +14,7 @@ struct Material {
   vec3 ambient;
   vec3 diffuse;
   vec3 specular;
-  float shine;
+  float specExp;
 };
 uniform Material material;
 
@@ -35,7 +35,7 @@ void main() {
   vec3 diffuse = light.diffuse * diff * material.diffuse;
 
   vec3 reflectDir = reflect(-lightDir, normalCamSpace);
-  float spec = pow(max(dot(normalize(eyeDirCamSpace), reflectDir), 0), material.shine);
+  float spec = pow(max(dot(normalize(eyeDirCamSpace), reflectDir), 0), material.specExp);
   vec3 specular = light.specular * spec * material.specular;
 
   color = ambient + diffuse + specular;
