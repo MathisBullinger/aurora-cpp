@@ -1,5 +1,5 @@
 #include "./objParser.hpp"
-#include <iostream>
+#include "./mtlParser.hpp"
 
 namespace aur::loader::mesh {
 
@@ -8,15 +8,16 @@ const std::map<std::string, OBJParser::State> OBJParser::types = {
   { "vn", VN },
   { "vt", VT },
   { "f", F },
-  { "usemtl", MTL }
+  { "usemtl", MTL },
+  { "mtllib", MTLLIB }
 };
 
 OBJParser::OBJParser(
-  const std::string& id,
+  const std::string& path,
   std::ifstream& stream, 
   std::vector<float>& vertices,
   MTLMap& mtlMap
-): file{stream}, vertices{vertices}, mtlMap{mtlMap}, id{id} {};
+): file{stream}, vertices{vertices}, mtlMap{mtlMap}, path{path} {};
 
 void OBJParser::parse() {
   for (char c; file.get(c);) {
@@ -29,9 +30,11 @@ void OBJParser::parse() {
     else token += c;
   }
 
+  if (!mtlLib.contains("none")) mtlLib.insert({ "none", Material::get("none") });
   for (auto& [m, faces] : materialFaces) {
-    auto material = Material::get(id + m, {1, .5, .31}, {1, .5, .31}, {.5, .5, .5});
-    
+    assert(mtlLib.contains(m));
+    auto material = mtlLib.at(m);
+
     if (!mtlMap.contains(material)) mtlMap.insert({ material, {} });
     for (auto& face : faces)
       for (auto vertex : face.triangulate())
@@ -73,6 +76,12 @@ void OBJParser::digest() {
 
   else if (state == MTL) {
     material = token;
+  }
+
+  else if (state == MTLLIB) {
+    auto mtlPath = path;
+    while (mtlPath.size() && mtlPath.back() != '/') mtlPath.pop_back();
+    mtlLib = parseMTL(mtlPath + token);
   }
 }
 

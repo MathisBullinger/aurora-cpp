@@ -36,6 +36,7 @@ add_executable(${PROJECT_NAME}
   src/input/inputReceiver.cpp
   src/input/cameraController.cpp
   src/util/path.cpp
+  src/util/string.cpp
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE 
   SDL2::SDL2main 

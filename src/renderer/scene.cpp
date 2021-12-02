@@ -47,6 +47,9 @@ void Scene::render() {
         shader->setUniform("normal", normal);
 
         for (auto& [mtl, indexBuffer] : mesh->getMaterials()) {
+          shader->setUniform("material.ambient", mtl->ambient);
+          shader->setUniform("material.diffuse", mtl->diffuse);
+          shader->setUniform("material.specular", mtl->specular);
           indexBuffer->bind();
           GLC(glDrawElements(GL_TRIANGLES, indexBuffer->count, GL_UNSIGNED_INT, 0));
         }

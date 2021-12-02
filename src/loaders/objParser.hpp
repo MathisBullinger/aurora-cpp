@@ -20,7 +20,7 @@ struct Face {
 class OBJParser {
 public:
   OBJParser(
-    const std::string& id,
+    const std::string& path,
     std::ifstream& stream, 
     std::vector<float>& vertices,
     MTLMap& mtlMap
@@ -46,7 +46,7 @@ private:
   std::ifstream& file;
   std::string token;
 
-  enum State { NEW, SKIP, V, VN, VT, F, MTL };
+  enum State { NEW, SKIP, V, VN, VT, F, MTL, MTLLIB };
   State state = NEW;
   unsigned int elc = 0;
 
@@ -62,7 +62,8 @@ private:
 
   std::map<std::string, std::vector<Face>> materialFaces;
   std::string material = "none";
-  const std::string id;
+  const std::string path;
+  std::map<std::string, Material*> mtlLib;
 };
 
 }

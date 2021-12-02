@@ -10,12 +10,13 @@
 namespace aur::loader::mesh {
 
 bool loadOBJ(const std::string& path, std::vector<float>& vertices, MTLMap& mtlMap) {
-  std::ifstream file(path::join(path::MESHES, path));
+  auto comPath = path::join(path::MESHES, path);
+  std::ifstream file(comPath);
   if (!file.is_open()) {
     std::cerr << "couldn't open file: " << path << std::endl;
     return false;
   }
-  OBJParser parser(path, file, vertices, mtlMap);
+  OBJParser parser(comPath, file, vertices, mtlMap);
   parser.parse();
   file.close();
   return true;

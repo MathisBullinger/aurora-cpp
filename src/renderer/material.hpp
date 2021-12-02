@@ -15,7 +15,8 @@ struct Material {
   cl specular;
 
   static std::map<std::string, Material*> lib;
-  static Material* get(const std::string id, const cl& ambient, const cl& diffuse, const cl& specular);
+  static Material* get(const std::string id);
+  static void deleteMaterials();
 };
 
 }

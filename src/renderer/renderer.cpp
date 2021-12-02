@@ -30,6 +30,7 @@ Renderer::Renderer() {
 Renderer::~Renderer() {
   Texture::deleteTextures();
   Shader::deleteShaders();
+  Material::deleteMaterials();
   delete boxMesh;
 };
 

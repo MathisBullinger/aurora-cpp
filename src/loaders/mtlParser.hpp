@@ -6,6 +6,6 @@
 
 namespace aur::loader::mesh {
 
-std::map<std::string, Material> mtlLib(const std::string& file);
+std::map<std::string, Material*> parseMTL(const std::string& path);
 
 }
