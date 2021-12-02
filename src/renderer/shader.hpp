@@ -28,6 +28,8 @@ public:
   void setUniform(const std::string& name, const Matrix<3, 3, float>& matrix);
   void setUniform(const std::string& name, const Matrix<4, 4, float>& matrix);
   void setUniform(const std::string& name, const vec3<float>& vector);
+  void setUniform(const std::string& name, float x, float y, float z);
+  void setUniform(const std::string& name, float n);
 private:
   const unsigned int program;
   std::map<std::string, int> uniformIds;

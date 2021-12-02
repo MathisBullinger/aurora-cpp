@@ -9,29 +9,30 @@ in vec3 lightDirCamSpace;
 out vec3 color;
 
 uniform sampler2D textureSampler;
-
 uniform vec3 lightPos;
 
+struct Material {
+  vec3 ambient;
+  vec3 diffuse;
+  vec3 specular;
+  float shine;
+};
+uniform Material material;
+
 const vec3 lightColor = vec3(1);
-const float lightPower = 15;
+const float lightPower = 30;
 const vec3 materialSpecularColor = vec3(.3);
 
 void main() {
-  vec3 materialDiffuseColor = texture(textureSampler, UV).rgb;
-  vec3 materialAmbientColor = 0.25 * materialDiffuseColor;
+  vec3 ambient = lightColor * material.ambient;
 
-  float lightDist = 5; // length(lightPos - posWorldSpace);
+  vec3 lightDir = normalize(lightDirCamSpace);
+  float diff = max(dot(normalize(normalCamSpace), lightDir), 0);
+  vec3 diffuse = lightColor * diff * material.diffuse;
 
-  vec3 n = normalize(normalCamSpace);
-  vec3 l = normalize(lightDirCamSpace);
-  float cosTheta = clamp(dot(n, l), 0, 1);
+  vec3 reflectDir = reflect(-lightDir, normalCamSpace);
+  float spec = pow(max(dot(normalize(eyeDirCamSpace), reflectDir), 0), material.shine);
+  vec3 specular = lightColor * spec * material.specular;
 
-  vec3 e = normalize(eyeDirCamSpace);
-  vec3 r = reflect(-l, n);
-  float cosAlpha = clamp(dot(e, r), 0, 1);
-
-  color = 
-    materialAmbientColor +
-    materialDiffuseColor * lightColor * lightPower * cosTheta / (lightDist*lightDist) +
-    materialSpecularColor * lightColor * lightPower * pow(cosAlpha, 5) / (lightDist*lightDist);
+  color = ambient + diffuse + specular;
 }

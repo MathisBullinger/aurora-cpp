@@ -19,9 +19,9 @@ Renderer::Renderer() {
   auto shader = Shader::get("basic.vert", "basic.frag");
   shader->use();
   
-  boxMesh = new Mesh("teapot2.obj");
+  boxMesh = new Mesh("donut_complete.obj");
 
-  float scale = .1;
+  float scale = 10;
   scene.addObject(shader, boxMesh, {0,0,0}, {scale,scale,scale}, {});
 
   Texture::get<Texture2D>("porcelain.bmp")->bind();

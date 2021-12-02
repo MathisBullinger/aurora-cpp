@@ -101,4 +101,13 @@ void Shader::setUniform(const std::string& name, const vec3<float>& vector) {
   GLC(glUniform3fv(getUniform(name), 1, &vector.values[0]));
 }
 
+void Shader::setUniform(const std::string& name, float x, float y, float z) {
+  setUniform(name, vec3<float>{ x, y, z});
+}
+
+void Shader::setUniform(const std::string& name, float n) {
+  assert(currentProgram == program);
+  GLC(glUniform1f(getUniform(name), n));
+}
+
 }

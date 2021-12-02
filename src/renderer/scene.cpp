@@ -21,6 +21,11 @@ void Scene::render() {
 
     shader->setUniform("view", camera.viewMatrix());
 
+    shader->setUniform("material.ambient", 1, .5, .31);
+    shader->setUniform("material.diffuse", 1, .5, .31);
+    shader->setUniform("material.specular", .5, .5, .5);
+    shader->setUniform("material.shine", 32);
+
     Vector<4, float> lightPos{500, 500, 500, 1};
     
     shader->setUniform("lightPos", lightPos.fit<3>());
@@ -34,11 +39,11 @@ void Scene::render() {
       for (auto& obj : objects) {
         auto model = obj.getModel();
         auto MVP = VP * model;
-        auto normal = Matrix<3, 3>(model).inverse().transpose();
+        auto normal = Matrix<3, 3>{view * model}.inverse().transpose();
 
         shader->setUniform("model", model);
-        shader->setUniform("VP", VP);
-        shader->setUniform("normalMat", normal);
+        shader->setUniform("MVP", MVP);
+        shader->setUniform("normal", normal);
 
         GLC(glDrawElements(GL_TRIANGLES, mesh->countIndices(), GL_UNSIGNED_INT, 0));
       }
