@@ -1,14 +1,9 @@
 #version 330 core
 
-in vec2 UV;
-in vec3 posWorldSpace;
-in vec3 normalCamSpace;
-in vec3 eyeDirCamSpace;
+in vec3 fragPos;
+in vec3 fragNormal;
 
 out vec3 color;
-
-uniform sampler2D textureSampler;
-uniform vec3 lightPos;
 
 struct Material {
   vec3 ambient;
@@ -25,18 +20,20 @@ struct Light {
   vec3 specular;
 };
 uniform Light light;
+uniform vec3 viewPos;
 
 void main() {
-  vec3 lightDir = normalize(light.pos + eyeDirCamSpace);
-  
   vec3 ambient = light.ambient * material.ambient;
 
-  float diff = max(dot(normalize(normalCamSpace), lightDir), 0);
-  vec3 diffuse = light.diffuse * diff * material.diffuse;
+  vec3 normal = normalize(fragNormal);
+  vec3 lightDir = normalize(light.pos - fragPos);
+  float diff = max(dot(normal, lightDir), 0);
+  vec3 diffuse = light.diffuse * (diff * material.diffuse);
 
-  vec3 reflectDir = reflect(-lightDir, normalCamSpace);
-  float spec = pow(max(dot(normalize(eyeDirCamSpace), reflectDir), 0), material.specExp);
-  vec3 specular = light.specular * spec * material.specular;
+  vec3 viewDir = normalize(viewPos - fragPos);
+  vec3 reflectDir = reflect(-lightDir, normal);
+  float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.specExp);
+  vec3 specular = light.specular * (spec * material.specular);
 
   color = ambient + diffuse + specular;
 }

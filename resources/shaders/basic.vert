@@ -4,22 +4,15 @@ layout (location = 0) in vec3 vertexPosition;
 layout (location = 1) in vec3 vertexNormal;
 layout (location = 2) in vec2 vertexUV;
 
-out vec2 UV;
-out vec3 posWorldSpace;
-out vec3 normalCamSpace;
-out vec3 eyeDirCamSpace;
+out vec3 fragPos;
+out vec3 fragNormal;
 
-uniform mat4 MVP;
-uniform mat4 view;
 uniform mat4 model;
+uniform mat4 VP;
 uniform mat3 normal;
 
 void main() {
-  gl_Position = MVP * vec4(vertexPosition, 1);
-  UV = vertexUV;
-
-  posWorldSpace = (model * vec4(vertexPosition, 1)).xyz;
-  vec3 posCam = (view * vec4(posWorldSpace, 1)).xyz;
-  eyeDirCamSpace = -posCam;
-  normalCamSpace = normal * vertexNormal;
+  fragPos = vec3(model * vec4(vertexPosition, 1));
+  fragNormal = normal * vertexNormal;
+  gl_Position = VP * vec4(fragPos, 1);
 }

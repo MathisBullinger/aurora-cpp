@@ -48,11 +48,19 @@ public:
     return result;
   }
 
-  template <typename N>
+  template <typename N> requires std::is_arithmetic<N>::value
   Vector<dimensions, decltype(std::declval<T&>() * std::declval<N&>())> operator *(N n) const {
     Vector<dimensions, decltype(std::declval<T&>() * std::declval<N&>())> result;
     for (unsigned int i = 0; i < dimensions; i++) 
       result.values[i] = values[i] * n;
+    return result;
+  }
+
+  template <typename N>
+  Vector<dimensions, decltype(std::declval<T&>() * std::declval<N&>())> operator *(const Vector<dimensions, N>& rhs) const {
+    Vector<dimensions, decltype(std::declval<T&>() * std::declval<N&>())> result;
+    for (unsigned int i = 0; i < dimensions; i++)
+      result.values[i] = values[i] * rhs[i];
     return result;
   }
 

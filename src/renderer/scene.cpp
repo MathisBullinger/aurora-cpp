@@ -14,32 +14,27 @@ Scene::Scene() {
 
 void Scene::render() {
   auto view = camera.viewMatrix();
-  auto VP = camera.projectionMatrix() * camera.viewMatrix();
 
   for (auto& [shader, meshes] : renderGraph) {
     shader->use();
 
-    shader->setUniform("view", camera.viewMatrix());
+    shader->setUniform("VP", camera.projectionMatrix() * camera.viewMatrix());
+    shader->setUniform("viewPos", camera.getPosition());
 
-    auto lp = (camera.viewMatrix() * Vector<4, float>{-200, 250, -500, 1});
+    auto lp = (Vector<4, float>{-200, 250, -500, 1});
     shader->setUniform("light.pos", lp.x(), lp.y(), lp.z());
     shader->setUniform("light.ambient", .2, .2, .2);
     shader->setUniform("light.diffuse", .5, .5, .5);
     shader->setUniform("light.specular", 1, 1, 1);
-
-    shader->setUniform("eyePos", camera.getPosition());
 
     for (auto& [mesh, objects] : meshes) {
       mesh->bind();
 
       for (auto& obj : objects) {
         auto model = obj.getModel();
-        auto MVP = VP * model;
-        auto normal = Matrix<3, 3>{view * model}.inverse().transpose();
 
         shader->setUniform("model", model);
-        shader->setUniform("MVP", MVP);
-        shader->setUniform("normal", normal);
+        shader->setUniform("normal", Matrix<3,3>{model}.inverse().transpose());
 
         for (auto& [mtl, indexBuffer] : mesh->getMaterials()) {
           shader->setUniform("material.ambient", mtl->ambient);
