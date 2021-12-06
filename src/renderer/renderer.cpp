@@ -23,8 +23,6 @@ Renderer::Renderer() {
 
   float scale = 10;
   scene.addObject(shader, boxMesh, {0,0,0}, {scale,scale,scale}, {});
-
-  Texture::get<Texture2D>("porcelain.bmp")->bind();
 }
 
 Renderer::~Renderer() {

@@ -38,7 +38,8 @@ std::map<std::string, Material*> parseMTL(const std::string& path) {
     if (parts[0] == "Ka") material->ambient = cl;
     if (parts[0] == "Kd") material->diffuse = cl;
     if (parts[0] == "Ks") material->specular = cl;
-    if (parts[0] == "Ns") material->specExp = std::stod(parts[1]) / 10;
+    if (parts[0] == "Ns") material->specExp = std::stod(parts[1]);
+    if (parts[0] == "map_Ka") material->texture = Texture::get<Texture2D>("donut.bmp");
   }
 
   for (auto& [_, mtl] : materials) {

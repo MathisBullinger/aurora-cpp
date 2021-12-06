@@ -2,6 +2,7 @@
 
 in vec3 fragPos;
 in vec3 fragNormal;
+in vec2 fragUV;
 
 out vec3 color;
 
@@ -13,6 +14,9 @@ struct Material {
 };
 uniform Material material;
 
+uniform sampler2D tex;
+uniform bool useTexture;
+
 struct Light {
   vec3 pos;
   vec3 ambient;
@@ -23,12 +27,19 @@ uniform Light light;
 uniform vec3 viewPos;
 
 void main() {
-  vec3 ambient = light.ambient * material.ambient;
+  vec3 matAmb = material.ambient;
+  vec3 matDif = material.diffuse;
+  if (useTexture) {
+    matAmb = texture(tex, fragUV).rgb;
+    matDif = texture(tex, fragUV).rgb;
+  }
+  
+  vec3 ambient = light.ambient * matAmb;
 
   vec3 normal = normalize(fragNormal);
   vec3 lightDir = normalize(light.pos - fragPos);
-  float diff = max(dot(normal, lightDir), 0);
-  vec3 diffuse = light.diffuse * (diff * material.diffuse);
+  float dif = max(dot(normal, lightDir), 0);
+  vec3 diffuse = light.diffuse * (dif * matDif);
 
   vec3 viewDir = normalize(viewPos - fragPos);
   vec3 reflectDir = reflect(-lightDir, normal);

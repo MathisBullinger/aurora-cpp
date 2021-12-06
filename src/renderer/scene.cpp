@@ -41,6 +41,10 @@ void Scene::render() {
           shader->setUniform("material.diffuse", mtl->diffuse);
           shader->setUniform("material.specular", mtl->specular);
           shader->setUniform("material.specExp", mtl->specExp);
+
+          shader->setUniform("useTexture", mtl->texture != nullptr);
+          if (mtl->texture) mtl->texture->bind();
+
           indexBuffer->bind();
           GLC(glDrawElements(GL_TRIANGLES, indexBuffer->count, GL_UNSIGNED_INT, 0));
         }

@@ -6,6 +6,7 @@ layout (location = 2) in vec2 vertexUV;
 
 out vec3 fragPos;
 out vec3 fragNormal;
+out vec2 fragUV;
 
 uniform mat4 model;
 uniform mat4 VP;
@@ -15,4 +16,5 @@ void main() {
   fragPos = vec3(model * vec4(vertexPosition, 1));
   fragNormal = normal * vertexNormal;
   gl_Position = VP * vec4(fragPos, 1);
+  fragUV = vertexUV;
 }
