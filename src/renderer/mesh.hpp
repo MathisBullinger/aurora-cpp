@@ -22,7 +22,12 @@ public:
   void bind() const;
   void unbind() const;
 
+  static Mesh* get(const std::string& path);
+  static void deleteMeshes();
+
 private:
+  static std::map<std::string, Mesh*> instances;
+
   VertexArray vertexArray;
   VertexBuffer* vertexBuffer = nullptr;
   std::map<Material*, IndexBuffer*> mtlBuffers;

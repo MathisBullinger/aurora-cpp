@@ -16,7 +16,6 @@ public:
 
 private:
   Scene scene;
-  Mesh* boxMesh = nullptr;
 };
 
 }

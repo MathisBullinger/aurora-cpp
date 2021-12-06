@@ -21,9 +21,11 @@ Mesh::Mesh(const std::string& path, Vector<3, float> translate) {
   vertexBuffer = new VertexBuffer(&vertices[0], vertices.size() * sizeof(float), true);
 
   BufferLayout layout;
-  layout.push<float>(3);
-  layout.push<float>(3);
-  layout.push<float>(2);
+  layout.push<float>(3); // pos
+  layout.push<float>(3); // normal
+  layout.push<float>(2); // uv
+  layout.push<float>(3); // tangent
+  layout.push<float>(3); // bitangent
 
   vertexArray.addBuffer(*vertexBuffer, layout);
 
@@ -75,6 +77,18 @@ Vector<3, float> Mesh::maxPos() const {
   }
 
   return max;
+}
+
+std::map<std::string, Mesh*> Mesh::instances;
+
+Mesh* Mesh::get(const std::string& path) {
+  if (!instances.contains(path)) instances.insert({ path, new Mesh(path) });
+  return instances.at(path);
+}
+
+void Mesh::deleteMeshes() {
+  for (const auto& [_, m] : instances) delete m;
+  instances.clear();
 }
   
 }

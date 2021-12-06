@@ -19,17 +19,15 @@ Renderer::Renderer() {
   auto shader = Shader::get("basic.vert", "basic.frag");
   shader->use();
   
-  boxMesh = new Mesh("donut_complete.obj");
-
-  float scale = 10;
-  scene.addObject(shader, boxMesh, {0,0,0}, {scale,scale,scale}, {});
+  scene.addObject(shader, Mesh::get("donut_complete.obj"), {0,0,0}, {10,10,10}, {});
+  scene.addObject(shader, Mesh::get("wall.obj"), {-2,0,5}, {1,1,1}, {{0,1,0}, 180_deg});
 }
 
 Renderer::~Renderer() {
   Texture::deleteTextures();
   Shader::deleteShaders();
   Material::deleteMaterials();
-  delete boxMesh;
+  Mesh::deleteMeshes();
 };
 
 void Renderer::render() {
