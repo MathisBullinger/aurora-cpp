@@ -11,7 +11,8 @@ Texture::~Texture() {
   if (id_) GLC(glDeleteTextures(1, &id_));
 }
 
-void Texture::bind() const {
+void Texture::bind(unsigned int location) const {
+  GLC(glActiveTexture(GL_TEXTURE0 + location));
   GLC(glBindTexture(type_, id_));
 }
 

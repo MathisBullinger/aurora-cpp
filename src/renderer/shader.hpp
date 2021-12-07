@@ -31,6 +31,7 @@ public:
   void setUniform(const std::string& name, float x, float y, float z);
   void setUniform(const std::string& name, float n);
   void setUniform(const std::string& name, bool v);
+  void setUniform(const std::string& name, int n);
 private:
   const unsigned int program;
   std::map<std::string, int> uniformIds;

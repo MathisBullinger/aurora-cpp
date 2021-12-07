@@ -16,6 +16,7 @@ struct Material {
   cl specular = {.5, .5, .5};
   float specExp = 32;
   Texture* texture = nullptr;
+  Texture* normalMap = nullptr;
 
   static std::map<std::string, Material*> lib;
   static Material* get(const std::string id);

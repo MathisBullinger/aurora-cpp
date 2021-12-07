@@ -6,7 +6,7 @@
 namespace aur {
 
 Scene::Scene() {
-  camera.move({ 0, 0, 5 });
+  camera.move({ 0, 0, -5 });
   camera.lookAt({ 0, 0, 0 });
   
   controller->start();
@@ -20,6 +20,9 @@ void Scene::render() {
 
     shader->setUniform("VP", camera.projectionMatrix() * camera.viewMatrix());
     shader->setUniform("viewPos", camera.getPosition());
+
+    shader->setUniform("tex", 0);
+    shader->setUniform("normalMap", 1);
 
     auto lp = (Vector<4, float>{-200, 250, -500, 1});
     shader->setUniform("light.pos", lp.x(), lp.y(), lp.z());
@@ -43,7 +46,10 @@ void Scene::render() {
           shader->setUniform("material.specExp", mtl->specExp);
 
           shader->setUniform("useTexture", mtl->texture != nullptr);
-          if (mtl->texture) mtl->texture->bind();
+          if (mtl->texture) mtl->texture->bind(0);
+
+          shader->setUniform("useNormalMap", mtl->normalMap != nullptr);
+          if (mtl->normalMap) mtl->normalMap->bind(1);
 
           indexBuffer->bind();
           GLC(glDrawElements(GL_TRIANGLES, indexBuffer->count, GL_UNSIGNED_INT, 0));
@@ -71,7 +77,7 @@ void Scene::render() {
   GLC(glCullFace(GL_BACK));
 }
 
-void Scene::addObject(
+Object& Scene::addObject(
   Shader* shader, 
   Mesh* mesh, 
   const vec3<float>& translate, 
@@ -79,7 +85,9 @@ void Scene::addObject(
   const Quaternion& rotation
 ) {
   renderGraph[shader][mesh].push_back({translate, scale, rotation});
+  return renderGraph[shader][mesh].back();
 }
+
 
 Object::Object(vec3<float> translation, vec3<float> scale, Quaternion rotation)
   : translation_{translation}, scale_{scale}, rotation_{rotation} {}

@@ -11,7 +11,7 @@ public:
   Texture(int type = GL_TEXTURE_2D);
   virtual ~Texture();
   
-  void bind() const;
+  void bind(unsigned int location = 0) const;
   void unbind() const;
 
   static void deleteTextures();

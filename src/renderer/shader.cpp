@@ -115,4 +115,9 @@ void Shader::setUniform(const std::string& name, bool v) {
   GLC(glUniform1i(getUniform(name), (int)v));
 }
 
+void Shader::setUniform(const std::string& name, int n) {
+  assert(currentProgram == program);
+  GLC(glUniform1i(getUniform(name), n));
+}
+
 }

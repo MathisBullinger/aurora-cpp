@@ -16,6 +16,7 @@ public:
 
 private:
   Scene scene;
+  Object* wall;
 };
 
 }

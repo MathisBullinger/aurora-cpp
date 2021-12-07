@@ -32,7 +32,7 @@ void calcTangents(
     Vector<2, float> dUV1 = uvs[1] - uvs[0];
     Vector<2, float> dUV2 = uvs[2] - uvs[0];
 
-    float r = 1.f / (dUV1.x() * dUV2.y() - dUV1.y() * dUV2.x());
+    float r = .5f / (dUV1.x() * dUV2.y() - dUV1.y() * dUV2.x());
     Vector<3, float> tangent = (dPos1 * dUV2.y() - dPos2 * dUV1.y()) * r;
     Vector<3, float> bitangent = (dPos2 * dUV1.x() - dPos1 * dUV2.x()) * r;
     

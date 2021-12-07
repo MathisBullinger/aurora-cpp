@@ -37,7 +37,7 @@ public:
 
   void render();
 
-  void addObject(
+  Object& addObject(
     Shader* shader,
     Mesh* mesh, 
     const vec3<float>& translate, 

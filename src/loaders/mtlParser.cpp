@@ -39,11 +39,12 @@ std::map<std::string, Material*> parseMTL(const std::string& path) {
     if (parts[0] == "Kd") material->diffuse = cl;
     if (parts[0] == "Ks") material->specular = cl;
     if (parts[0] == "Ns") material->specExp = std::stod(parts[1]);
-    if (parts[0] == "map_Ka") material->texture = Texture::get<Texture2D>("donut.bmp");
+    if (parts[0] == "map_Ka") material->texture = Texture::get<Texture2D>(parts[1]);
+    if (parts[0] == "map_normal") material->normalMap = Texture::get<Texture2D>(parts[1]);
   }
 
   for (auto& [_, mtl] : materials) {
-    mtl->ambient = .6 * mtl->ambient * mtl->diffuse;
+    mtl->ambient = .5 * mtl->ambient * mtl->diffuse;
   }
   
   return materials;
