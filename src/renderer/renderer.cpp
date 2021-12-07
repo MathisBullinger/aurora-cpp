@@ -21,7 +21,12 @@ Renderer::Renderer() {
   
   scene.addObject(shader, Mesh::get("donut_complete.obj"), {0,0,0}, {10,10,10}, {});
   scene.addObject(shader, Mesh::get("wall.obj"), {5,0,5}, {1,1,1}, {{0,1,0}, 180_deg});
-  scene.addObject(shader, Mesh::get("wall.obj"), {5,-3,5}, {1,1,1}, {{0,1,0}, 125_deg});
+  scene.addObject(shader, Mesh::get("wall_no_normal.obj"), {7,0,5}, {1,1,1}, {{0,1,0}, 180_deg});
+  scene.addObject(shader, Mesh::get("cliff.obj"), {5,2,5}, {1,1,1}, {{0,1,0}, 180_deg});
+  scene.addObject(shader, Mesh::get("cliff_no_normal.obj"), {7,2,5}, {1,1,1}, {{0,1,0}, 180_deg});
+  scene.addObject(shader, Mesh::get("concrete.obj"), {5,4,5}, {1,1,1}, {{0,1,0}, 180_deg});
+  scene.addObject(shader, Mesh::get("concrete_no_normal.obj"), {7,4,5}, {1,1,1}, {{0,1,0}, 180_deg});
+  scene.addObject(shader, Mesh::get("concrete.obj"), {5,-3,5}, {1,1,1}, {{0,1,0}, 125_deg});
   wall = &scene.addObject(shader, Mesh::get("wallBlock.obj"), {-5,0,5}, {1,1,1}, {});
 }
 

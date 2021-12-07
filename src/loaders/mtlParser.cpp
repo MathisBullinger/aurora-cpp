@@ -44,7 +44,7 @@ std::map<std::string, Material*> parseMTL(const std::string& path) {
   }
 
   for (auto& [_, mtl] : materials) {
-    mtl->ambient = .5 * mtl->ambient * mtl->diffuse;
+    mtl->ambient = .4 * mtl->ambient * mtl->diffuse;
   }
   
   return materials;

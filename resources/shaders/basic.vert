@@ -15,6 +15,7 @@ out FRAG {
 uniform mat4 model;
 uniform mat4 VP;
 uniform mat3 normal;
+uniform mat3 TBN;
 
 struct Light {
   vec3 pos;
@@ -30,18 +31,19 @@ uniform bool useNormalMap;
 out vec3 tanLightPos;
 out vec3 tanViewPos;
 
-
 void main() {
   
   frag.position = vec3(model * vec4(vertexPosition, 1));
-  frag.normal = normal * vertexNormal;
   frag.UV = vertexUV;
   gl_Position = VP * vec4(frag.position, 1);
 
   tanLightPos = light.pos;
   tanViewPos = viewPos;
 
-  if (!useNormalMap) return;
+  if (!useNormalMap) {
+    frag.normal = normal * vertexNormal;
+    return;
+  }
 
   mat3 TBN = transpose(mat3(
     normalize(vec3(model * vec4(vertexTangent, 0))),
