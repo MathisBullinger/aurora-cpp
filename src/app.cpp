@@ -24,8 +24,6 @@ void App::run() {
     processEvents();
 
     for (auto window : windows) {
-      window->clear();
-
       for (const auto& receiver : InputReceiver::active)
         receiver->update(input);
       

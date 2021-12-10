@@ -12,14 +12,15 @@
 namespace aur {
 
 Renderer::Renderer() {
-  GLC(glEnable(GL_DEPTH_TEST));
+  fb.bind();
   GLC(glDepthFunc(GL_LEQUAL));
   GLC(glEnable(GL_CULL_FACE));
 
-  auto shader = Shader::get("basic.vert", "basic.frag");
+  auto shader = Shader::get("pbr.vert", "pbr.frag");
   shader->use();
   
   scene.addObject(shader, Mesh::get("donut_complete.obj"), {0,0,0}, {10,10,10}, {});
+  scene.addObject(shader, Mesh::get("sphere.obj"), {5,0,-5}, {1,1,1}, {});
   scene.addObject(shader, Mesh::get("wall.obj"), {5,0,5}, {1,1,1}, {{0,1,0}, 180_deg});
   scene.addObject(shader, Mesh::get("wall_no_normal.obj"), {7,0,5}, {1,1,1}, {{0,1,0}, 180_deg});
   scene.addObject(shader, Mesh::get("cliff.obj"), {5,2,5}, {1,1,1}, {{0,1,0}, 180_deg});
@@ -38,7 +39,22 @@ Renderer::~Renderer() {
 };
 
 void Renderer::render() {
+  fb.bind();
+  GLC(glClearColor(0, 0, 0, 1));
+  GLC(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+  GLC(glEnable(GL_DEPTH_TEST));
+  
   scene.render();
+
+  fb.unbind();
+  GLC(glClearColor(1, 1, 1, 1));
+  GLC(glClear(GL_COLOR_BUFFER_BIT));
+
+  screenShader.use();
+  Mesh::get("screen.obj")->bind();
+  GLC(glDisable(GL_DEPTH_TEST));
+  GLC(glBindTexture(GL_TEXTURE_2D, fb.getAttachment(FB::COLOR)));
+  GLC(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
 
   wall->rotate({{ 0, 1, 0 }, -.05_deg});
 }

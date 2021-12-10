@@ -27,6 +27,7 @@ add_executable(${PROJECT_NAME}
   src/renderer/texture.cpp
   src/renderer/cubemap.cpp
   src/renderer/material.cpp
+  src/renderer/frameBuffer.cpp
   src/loaders/texture.cpp
   src/loaders/mesh.cpp
   src/loaders/objParser.cpp

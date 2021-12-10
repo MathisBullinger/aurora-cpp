@@ -23,8 +23,6 @@ Window::Window() {
   if (glew_status != GLEW_OK) 
     throw runtime_error(std::string("couldn't init glew: ") + reinterpret_cast<const char*>(glewGetErrorString(glew_status)));
 
-  glClearColor(0, 0, 0, 1);
-
   SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
@@ -32,10 +30,6 @@ Window::~Window() {
   SDL_GL_DeleteContext(context);
   SDL_DestroyWindow(window);
   SDL_Quit();
-}
-
-void Window::clear() {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Window::swap() {
