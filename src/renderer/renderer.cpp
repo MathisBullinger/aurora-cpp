@@ -51,6 +51,14 @@ void Renderer::render() {
   GLC(glClear(GL_COLOR_BUFFER_BIT));
 
   screenShader.use();
+
+  screenShader.setUniformArr("kernel", {
+    -1, -1, -1,
+    -1,  9, -1,
+    -1, -1, -1
+  });
+  screenShader.setUniform("offset", 5.f);
+  
   Mesh::get("screen.obj")->bind();
   GLC(glDisable(GL_DEPTH_TEST));
   GLC(glBindTexture(GL_TEXTURE_2D, fb.getAttachment(FB::COLOR)));

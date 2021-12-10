@@ -19,7 +19,7 @@ private:
   Scene scene;
   Object* wall;
   FrameBuffer fb{ 1200, 900, FB::COLOR | FB::DEPTH };
-  Shader& screenShader = *Shader::get("screen.vert", "screen.frag");
+  Shader& screenShader = *Shader::get("screen.vert", "screen_kernel.frag");
 };
 
 }

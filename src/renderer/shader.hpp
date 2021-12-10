@@ -6,6 +6,7 @@
 #include <sstream>
 #include <exception>
 #include <array>
+#include <vector>
 #include <map>
 #include "math/matrix.hpp"
 #include "math/vector.hpp"
@@ -32,6 +33,7 @@ public:
   void setUniform(const std::string& name, float n);
   void setUniform(const std::string& name, bool v);
   void setUniform(const std::string& name, int n);
+  void setUniformArr(const std::string& name, std::vector<float> values);
 private:
   const unsigned int program;
   std::map<std::string, int> uniformIds;
