@@ -5,5 +5,5 @@ in vec2 uv;
 uniform sampler2D tex;
 
 void main() {
-  color = texture(tex, uv);
+  color = pow(texture(tex, uv), vec4(1.0/2.2));
 }

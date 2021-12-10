@@ -53,11 +53,11 @@ void Renderer::render() {
   screenShader.use();
 
   screenShader.setUniformArr("kernel", {
-    -1, -1, -1,
-    -1,  9, -1,
-    -1, -1, -1
+     0, -1,  0,
+    -1,  5, -1,
+     0, -1,  0
   });
-  screenShader.setUniform("offset", 5.f);
+  screenShader.setUniform("offset", 2.f);
   
   Mesh::get("screen.obj")->bind();
   GLC(glDisable(GL_DEPTH_TEST));

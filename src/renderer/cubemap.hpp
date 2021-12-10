@@ -10,14 +10,14 @@ public:
   Cubemap(
     const std::string& pathPrefix, 
     const std::array<std::string, 6>& faces = {
-      "right.bmp", 
+      "right.bmp",
       "left.bmp",
       "bottom.bmp",
       "top.bmp",
       "front.bmp",
-      "back.bmp",
+      "back.bmp"
   });
-  void load();
+  void load(int format);
 
 private:
   const std::string pathPrefix_;

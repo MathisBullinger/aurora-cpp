@@ -40,7 +40,7 @@ std::map<std::string, Material*> parseMTL(const std::string& path) {
     if (parts[0] == "Ks") material->specular = cl;
     if (parts[0] == "Ns") material->specExp = std::stod(parts[1]);
     if (parts[0] == "map_Ka") material->texture = Texture::get<Texture2D>(parts[1]);
-    if (parts[0] == "map_normal") material->normalMap = Texture::get<Texture2D>(parts[1]);
+    if (parts[0] == "map_normal") material->normalMap = Texture::get<Texture2D>(parts[1], GL_RGB);
   }
 
   for (auto& [_, mtl] : materials) {
