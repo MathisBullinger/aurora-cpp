@@ -2,6 +2,7 @@
 
 #include <map>
 #include <vector>
+#include <list>
 #include "renderer/shader.hpp"
 #include "renderer/mesh.hpp"
 #include "renderer/camera.hpp"
@@ -16,9 +17,11 @@ namespace aur {
 class Object {
 public:
   Object(vec3<float> translation, vec3<float> scale, Quaternion rotation);
+  ~Object();
   const Matrix<4, 4, float>& getModel();
-
+  
   void rotate(const Quaternion& rotation);
+  Material* material = nullptr;
 
 private:
   vec3<float> translation_;
@@ -47,8 +50,14 @@ public:
     Shader* shader,
     Mesh* mesh, 
     const vec3<float>& translate, 
-    const vec3<float>& scale,
-    const Quaternion& rotation
+    const vec3<float>& scale = {1,1,1},
+    const Quaternion& rotation = {}
+  );
+
+  Light* addLight(
+    const vec3<float>& pos, 
+    const vec3<float>& color, 
+    float strength
   );
 
 private:
@@ -56,7 +65,7 @@ private:
   FPSCamera camera;
   std::unique_ptr<CameraController> controller{CameraController::create(camera)};
   Mesh skybox{"cube.obj"};
-  std::vector<Light> lights;
+  std::list<Light> lights;
 };
   
 }

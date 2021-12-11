@@ -76,9 +76,6 @@ void main() {
   vec3 ambient = vec3(0.03) * albedoCl * ao;
   vec3 color = ambient + Lo;
 
-  // HDR tonemapping
-  color = color / (color + vec3(1.0));
-
   fragColor = vec4(color, 1.0);
 }
 

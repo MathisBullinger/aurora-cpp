@@ -8,10 +8,10 @@ FrameBuffer::FrameBuffer(unsigned int width, unsigned int height, FBFlag flags) 
   bind();
 
   if (flags & FB::COLOR) 
-    attachments_.insert({ FB::COLOR, createAttachment(width, height, GL_COLOR_ATTACHMENT0, AttType::TEXTURE, GL_RGB) });
+    attachments_.insert({ FB::COLOR, createAttachment(width, height, GL_COLOR_ATTACHMENT0, AttType::TEXTURE, GL_RGB, GL_RGBA16F) });
 
   if (flags & FB::DEPTH) 
-    attachments_.insert({ FB::DEPTH, createAttachment(width, height, GL_DEPTH_ATTACHMENT, AttType::BUFFER, GL_DEPTH_COMPONENT) });
+    attachments_.insert({ FB::DEPTH, createAttachment(width, height, GL_DEPTH_ATTACHMENT, AttType::BUFFER, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT) });
 
   assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
   unbind();
@@ -46,14 +46,15 @@ std::pair<FB::AttType, unsigned int> FrameBuffer::createAttachment(
   unsigned int height, 
   int attachment, 
   AttType type, 
-  int format
+  int format,
+  int internal
 ) const {
   unsigned int id;
 
   if (type == AttType::TEXTURE) {
     GLC(glGenTextures(1, &id));
     GLC(glBindTexture(GL_TEXTURE_2D, id));
-    GLC(glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr));
+    GLC(glTexImage2D(GL_TEXTURE_2D, 0, internal, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr));
     GLC(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     GLC(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
     GLC(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
@@ -63,7 +64,7 @@ std::pair<FB::AttType, unsigned int> FrameBuffer::createAttachment(
   else {
     GLC(glGenRenderbuffers(1, &id));
     GLC(glBindRenderbuffer(GL_RENDERBUFFER, id));
-    GLC(glRenderbufferStorage(GL_RENDERBUFFER, format, width, height));
+    GLC(glRenderbufferStorage(GL_RENDERBUFFER, internal, width, height));
     GLC(glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, id));
   }
 

@@ -25,7 +25,14 @@ private:
   unsigned int id_;
   enum class AttType { TEXTURE, BUFFER };
   std::map<FBFlag, std::pair<AttType, unsigned int>> attachments_;
-  std::pair<AttType, unsigned int> createAttachment(unsigned int width, unsigned int height, int attachment, AttType type, int format) const;
+  std::pair<AttType, unsigned int> createAttachment(
+    unsigned int width,
+    unsigned int height,
+    int attachment,
+    AttType type,
+    int format,
+    int internal
+  ) const;
 };
 
 using FB = FrameBuffer;

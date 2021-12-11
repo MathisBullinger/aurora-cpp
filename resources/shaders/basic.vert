@@ -32,7 +32,6 @@ out vec3 tanLightPos;
 out vec3 tanViewPos;
 
 void main() {
-  
   frag.position = vec3(model * vec4(vertexPosition, 1));
   frag.UV = vertexUV;
   gl_Position = VP * vec4(frag.position, 1);

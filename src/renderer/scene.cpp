@@ -9,11 +9,6 @@ Scene::Scene() {
   camera.move({ 0, 0, -5 });
   camera.lookAt({ 0, 0, 0 });
 
-  lights.push_back({ { -200, 200, -200 }, { 1, 1, 1 }, 1000000 });
-  lights.push_back({ { 200, 200, -200 }, { 1, 0, 0 }, 5 });
-  lights.push_back({ { -200, -200, -200 }, { 1, 0, 0 }, 5 });
-  lights.push_back({ { 200, -200, -200 }, { 1, 0, 0 }, 5 });
-  
   controller->start();
 }
 
@@ -27,11 +22,13 @@ void Scene::render() {
     shader->setUniform("view", camera.viewMatrix());
     shader->setUniform("camPos", camera.getPosition());
 
-    for (unsigned int i = 0; i < lights.size(); i++) {
+    int i = 0;
+    for (const auto& light : lights) {
       std::string k = "lights[" + std::to_string(i) + "].";
-      shader->setUniform(k + "position", lights[i].position);
-      shader->setUniform(k + "color", lights[i].color);
-      shader->setUniform(k + "strength", lights[i].strength);
+      shader->setUniform(k + "position", light.position);
+      shader->setUniform(k + "color", light.color);
+      shader->setUniform(k + "strength", light.strength);
+      i++;
     }
     shader->setUniform("lightCount", (unsigned int)lights.size());
 
@@ -48,7 +45,9 @@ void Scene::render() {
         shader->setUniform("model", model);
         shader->setUniform("normal", Matrix<3,3>{model}.inverse().transpose());
 
-        for (auto& [mtl, indexBuffer] : mesh->getMaterials()) {
+        // auto const * mtl = obj.material;
+        for (auto& [m, indexBuffer] : mesh->getMaterials()) {
+          auto mtl = obj.material ?: m;
           shader->setUniform("useAlbedoTexture", mtl->texture != nullptr);
           (mtl->texture ?: Texture::get<Texture2D>("white"))->bind(shader->getTexture("albedo.texture"));
           shader->setUniform("albedo.vertex", mtl->albedo);
@@ -61,6 +60,19 @@ void Scene::render() {
         }
       }
     }
+  }
+
+  for (const auto& light : lights) {
+    auto shader = Shader::get("light.vert", "light.frag");
+    shader->use();
+    Matrix<4, 4, float> model = transform::translate(light.position) * transform::scale<3>(.05f);
+    shader->setUniform("MVP", camera.projectionMatrix() * camera.viewMatrix() * model);
+    shader->setUniform("color", light.color);
+    auto mesh = Mesh::get("cube.obj");
+    mesh->bind();
+    auto ind = mesh->getMaterials().begin()->second;
+    ind->bind();
+    GLC(glDrawElements(GL_TRIANGLES, ind->count, GL_UNSIGNED_INT, 0));
   }
 
 
@@ -93,9 +105,17 @@ Object& Scene::addObject(
   return renderGraph[shader][mesh].back();
 }
 
+Light* Scene::addLight(const vec3<float>& pos, const vec3<float>& color, float strength) {
+  lights.push_front({ pos, color, strength });
+  return &lights.front();
+}
 
 Object::Object(vec3<float> translation, vec3<float> scale, Quaternion rotation)
   : translation_{translation}, scale_{scale}, rotation_{rotation} {}
+
+Object::~Object() {
+  delete material;
+}
 
 const Matrix<4, 4, float>& Object::getModel() {
   if (dirty_) {
