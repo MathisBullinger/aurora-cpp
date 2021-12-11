@@ -1,7 +1,7 @@
 #version 330 core
 
 const float PI = 3.141592653;
-#define MAX_LIGHTS 64
+#define MAX_LIGHTS 16
 
 out vec4 fragColor;
 
@@ -11,15 +11,18 @@ in FRAG {
   vec2 UV;
 } frag;
 
-struct Color {
+struct Sampler {
   sampler2D texture;
-  vec3 color;
+  vec3 vertex;
 };
 
-uniform Color albedo;
+uniform Sampler albedo;
 uniform float metallic;
 uniform float roughness;
 uniform float ao;
+
+uniform sampler2D normalMap;
+uniform bool useNormalMap;
 
 struct Light {
   vec3 position;
@@ -29,7 +32,8 @@ struct Light {
 uniform Light lights[MAX_LIGHTS];
 uniform uint lightCount;
 
-uniform vec3 camPos;
+in vec3 lightPos[MAX_LIGHTS];
+in vec3 viewPos;
 
 float distributionGGX(vec3 N, vec3 H, float roughness);
 float geometrySchlickGGX(float NdotV, float roughness);
@@ -37,10 +41,12 @@ float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
 
 void main() {
-  vec3 N = normalize(frag.normal);
-  vec3 V = normalize(camPos - frag.pos);
+  vec3 normal = useNormalMap ? texture(normalMap, frag.UV).xyz * 2.0 - 1.0 : frag.normal;
+  
+  vec3 N = normalize(normal);
+  vec3 V = normalize(viewPos - frag.pos);
 
-  vec3 albedoCl = texture(albedo.texture, frag.UV).rgb * albedo.color;
+  vec3 albedoCl = texture(albedo.texture, frag.UV).rgb * albedo.vertex;
 
   vec3 F0 = vec3(0.04);
   F0 = mix(F0, albedoCl, metallic);
@@ -48,9 +54,9 @@ void main() {
   vec3 Lo = vec3(0);
 
   for (uint i = 0u; i < lightCount; i++) {
-    vec3 L = normalize(lights[i].position - frag.pos);
+    vec3 L = normalize(lightPos[i] - frag.pos);
     vec3 H = normalize(V + L);
-    float distance = length(lights[i].position - frag.pos);
+    float distance = length(lightPos[i] - frag.pos);
     float attenuation = 1.0 / (1.0 + distance * distance);
     vec3 radiance = lights[i].color * attenuation * lights[i].strength;
 

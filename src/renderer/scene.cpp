@@ -9,10 +9,10 @@ Scene::Scene() {
   camera.move({ 0, 0, -5 });
   camera.lookAt({ 0, 0, 0 });
 
-  lights.push_back({ { 200, 200, -200 }, { 1, 1, 1 }, 500000 });
-  lights.push_back({ { -200, 200, -200 }, { 1, 1, 1 }, 500000 });
-  lights.push_back({ { -200, -200, -200 }, { 1, 1, 1 }, 500000 });
-  lights.push_back({ { 200, -200, -200 }, { 1, 1, 1 }, 500000 });
+  lights.push_back({ { -200, 200, -200 }, { 1, 1, 1 }, 1000000 });
+  lights.push_back({ { 200, 200, -200 }, { 1, 0, 0 }, 5 });
+  lights.push_back({ { -200, -200, -200 }, { 1, 0, 0 }, 5 });
+  lights.push_back({ { 200, -200, -200 }, { 1, 0, 0 }, 5 });
   
   controller->start();
 }
@@ -46,15 +46,15 @@ void Scene::render() {
         auto model = obj.getModel();
 
         shader->setUniform("model", model);
-        // shader->setUniform("normal", Matrix<3,3>{model}.inverse().transpose());
+        shader->setUniform("normal", Matrix<3,3>{model}.inverse().transpose());
 
         for (auto& [mtl, indexBuffer] : mesh->getMaterials()) {
           shader->setUniform("useAlbedoTexture", mtl->texture != nullptr);
           (mtl->texture ?: Texture::get<Texture2D>("white"))->bind(shader->getTexture("albedo.texture"));
-          shader->setUniform("albedo.color", mtl->albedo);
+          shader->setUniform("albedo.vertex", mtl->albedo);
 
-          // shader->setUniform("useNormalMap", mtl->normalMap != nullptr);
-          // if (mtl->normalMap) mtl->normalMap->bind(1);
+          shader->setUniform("useNormalMap", mtl->normalMap != nullptr);
+          if (mtl->normalMap) mtl->normalMap->bind(shader->getTexture("normalMap"));
 
           indexBuffer->bind();
           GLC(glDrawElements(GL_TRIANGLES, indexBuffer->count, GL_UNSIGNED_INT, 0));
