@@ -79,6 +79,12 @@ public:
   }
 
   template <typename N>
+  Vector<dimensions, T>& operator *=(const Vector<dimensions, N>& v) {
+    for (unsigned int i = 0; i < dimensions; i++) values[i] *= v[i];
+    return *this;
+  }
+
+  template <typename N>
   Vector<dimensions, T>& operator /=(N n) {
     for (unsigned int i = 0; i < dimensions; i++) values[i] /= n;
     return *this;

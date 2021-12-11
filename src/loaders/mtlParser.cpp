@@ -35,18 +35,11 @@ std::map<std::string, Material*> parseMTL(const std::string& path) {
       for (unsigned int i = 0; i < 3; i++) 
         cl[i] = std::stod(parts[i + 1]);
 
-    if (parts[0] == "Ka") material->ambient = cl;
-    if (parts[0] == "Kd") material->diffuse = cl;
-    if (parts[0] == "Ks") material->specular = cl;
-    if (parts[0] == "Ns") material->specExp = std::stod(parts[1]);
+    if (parts[0] == "Ka" || parts[0] == "Kd") material->albedo *= cl;
     if (parts[0] == "map_Ka") material->texture = Texture::get<Texture2D>(parts[1]);
     if (parts[0] == "map_normal") material->normalMap = Texture::get<Texture2D>(parts[1], GL_RGB);
   }
 
-  for (auto& [_, mtl] : materials) {
-    mtl->ambient = .4 * mtl->ambient * mtl->diffuse;
-  }
-  
   return materials;
 }
 

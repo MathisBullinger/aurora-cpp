@@ -32,8 +32,18 @@ void Texture::load2D(const std::string& path, int type, int format) {
   delete [] (char*)data;
 }
 
+void Texture::add(const std::string& key, Texture* texture) {
+  textures.insert({ key, texture });
+}
+
 Texture2D::Texture2D(const std::string& path) 
   : Texture{GL_TEXTURE_2D}, path_{path} {};
+
+Texture2D::Texture2D(unsigned int width, unsigned int height, const void* data) {
+  GLC(glGenTextures(1, &id_));
+  GLC(glBindTexture(GL_TEXTURE_2D, id_));
+  GLC(glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data));
+}
 
 void Texture2D::load(int format) {
   assert(!id_);

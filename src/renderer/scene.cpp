@@ -8,6 +8,11 @@ namespace aur {
 Scene::Scene() {
   camera.move({ 0, 0, -5 });
   camera.lookAt({ 0, 0, 0 });
+
+  lights.push_back({ { 200, 200, -200 }, { 1, 1, 1 }, 500000 });
+  lights.push_back({ { -200, 200, -200 }, { 1, 1, 1 }, 500000 });
+  lights.push_back({ { -200, -200, -200 }, { 1, 1, 1 }, 500000 });
+  lights.push_back({ { 200, -200, -200 }, { 1, 1, 1 }, 500000 });
   
   controller->start();
 }
@@ -18,17 +23,21 @@ void Scene::render() {
   for (auto& [shader, meshes] : renderGraph) {
     shader->use();
 
-    shader->setUniform("VP", camera.projectionMatrix() * camera.viewMatrix());
-    shader->setUniform("viewPos", camera.getPosition());
+    shader->setUniform("projection", camera.projectionMatrix());
+    shader->setUniform("view", camera.viewMatrix());
+    shader->setUniform("camPos", camera.getPosition());
 
-    shader->setUniform("tex", 0);
-    shader->setUniform("normalMap", 1);
+    for (unsigned int i = 0; i < lights.size(); i++) {
+      std::string k = "lights[" + std::to_string(i) + "].";
+      shader->setUniform(k + "position", lights[i].position);
+      shader->setUniform(k + "color", lights[i].color);
+      shader->setUniform(k + "strength", lights[i].strength);
+    }
+    shader->setUniform("lightCount", (unsigned int)lights.size());
 
-    auto lp = (Vector<4, float>{-200, 250, -500, 1});
-    shader->setUniform("light.pos", lp.x(), lp.y(), lp.z());
-    shader->setUniform("light.ambient", .2, .2, .2);
-    shader->setUniform("light.diffuse", .5, .5, .5);
-    shader->setUniform("light.specular", 1, 1, 1);
+    shader->setUniform("metallic", .5f);
+    shader->setUniform("roughness", .5f);
+    shader->setUniform("ao", .5f);
 
     for (auto& [mesh, objects] : meshes) {
       mesh->bind();
@@ -37,19 +46,15 @@ void Scene::render() {
         auto model = obj.getModel();
 
         shader->setUniform("model", model);
-        shader->setUniform("normal", Matrix<3,3>{model}.inverse().transpose());
+        // shader->setUniform("normal", Matrix<3,3>{model}.inverse().transpose());
 
         for (auto& [mtl, indexBuffer] : mesh->getMaterials()) {
-          shader->setUniform("material.ambient", mtl->ambient);
-          shader->setUniform("material.diffuse", mtl->diffuse);
-          shader->setUniform("material.specular", mtl->specular);
-          shader->setUniform("material.specExp", mtl->specExp);
+          shader->setUniform("useAlbedoTexture", mtl->texture != nullptr);
+          (mtl->texture ?: Texture::get<Texture2D>("white"))->bind(shader->getTexture("albedo.texture"));
+          shader->setUniform("albedo.color", mtl->albedo);
 
-          shader->setUniform("useTexture", mtl->texture != nullptr);
-          if (mtl->texture) mtl->texture->bind(0);
-
-          shader->setUniform("useNormalMap", mtl->normalMap != nullptr);
-          if (mtl->normalMap) mtl->normalMap->bind(1);
+          // shader->setUniform("useNormalMap", mtl->normalMap != nullptr);
+          // if (mtl->normalMap) mtl->normalMap->bind(1);
 
           indexBuffer->bind();
           GLC(glDrawElements(GL_TRIANGLES, indexBuffer->count, GL_UNSIGNED_INT, 0));

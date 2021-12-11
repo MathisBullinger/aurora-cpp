@@ -16,6 +16,9 @@ Renderer::Renderer() {
   GLC(glDepthFunc(GL_LEQUAL));
   GLC(glEnable(GL_CULL_FACE));
 
+  std::uint8_t pxWhite[3]{ 0xff, 0xff, 0xff };
+  Texture::add("white", new Texture2D(1, 1, &pxWhite[0]));
+
   auto shader = Shader::get("pbr.vert", "pbr.frag");
   shader->use();
   
@@ -52,13 +55,6 @@ void Renderer::render() {
 
   screenShader.use();
 
-  screenShader.setUniformArr("kernel", {
-     0, -1,  0,
-    -1,  5, -1,
-     0, -1,  0
-  });
-  screenShader.setUniform("offset", 2.f);
-  
   Mesh::get("screen.obj")->bind();
   GLC(glDisable(GL_DEPTH_TEST));
   GLC(glBindTexture(GL_TEXTURE_2D, fb.getAttachment(FB::COLOR)));

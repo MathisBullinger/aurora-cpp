@@ -31,6 +31,12 @@ private:
 
 using RenderGraph = std::map<Shader*, std::map<Mesh*, std::vector<Object>>>;
 
+struct Light {
+  Vector<3, float> position;
+  Vector<3, float> color;
+  float strength;
+};
+
 class Scene {
 public:
   Scene();
@@ -50,6 +56,7 @@ private:
   FPSCamera camera;
   std::unique_ptr<CameraController> controller{CameraController::create(camera)};
   Mesh skybox{"cube.obj"};
+  std::vector<Light> lights;
 };
   
 }

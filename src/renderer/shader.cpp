@@ -81,9 +81,16 @@ void Shader::deleteShaders() {
   for (const auto& v : shaderMap) delete v.second;
 }
 
-int Shader::getUniform(const std::string& name) {
+unsigned int Shader::getUniform(const std::string& name) {
   if (uniformIds.contains(name)) return uniformIds[name];
   return uniformIds[name] = glGetUniformLocation(program, name.c_str());
+}
+
+unsigned int Shader::getTexture(const std::string& name) {
+  if (textureIds.contains(name)) return textureIds[name];
+  unsigned int slot = textureIds.size();
+  GLC(glUniform1i(getUniform(name), slot));
+  return textureIds[name] = slot;
 }
 
 void Shader::setUniform(const std::string& name, const Matrix<4, 4, float>& matrix) {
@@ -118,6 +125,11 @@ void Shader::setUniform(const std::string& name, bool v) {
 void Shader::setUniform(const std::string& name, int n) {
   assert(currentProgram == program);
   GLC(glUniform1i(getUniform(name), n));
+}
+
+void Shader::setUniform(const std::string& name, unsigned int n) {
+  assert(currentProgram == program);
+  GLC(glUniform1ui(getUniform(name), n));
 }
 
 void Shader::setUniformArr(const std::string& name, std::vector<float> values) {

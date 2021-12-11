@@ -25,6 +25,8 @@ public:
     return textures.at(path);
   }
 
+  static void add(const std::string& key, Texture* texture);
+
   virtual void load(int format) = 0;
 
 protected:
@@ -40,6 +42,7 @@ private:
 class Texture2D : public Texture {
 public:
   Texture2D(const std::string& path);
+  Texture2D(unsigned int width, unsigned int height, const void* data);
   void load(int format);
   
 private:

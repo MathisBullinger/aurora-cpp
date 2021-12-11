@@ -25,7 +25,9 @@ public:
   static Shader* get(const std::string& vertex, const std::string& fragment);
   static void deleteShaders();
 
-  int getUniform(const std::string& name);
+  unsigned int getUniform(const std::string& name);
+  unsigned int getTexture(const std::string& name);
+  
   void setUniform(const std::string& name, const Matrix<3, 3, float>& matrix);
   void setUniform(const std::string& name, const Matrix<4, 4, float>& matrix);
   void setUniform(const std::string& name, const vec3<float>& vector);
@@ -33,10 +35,12 @@ public:
   void setUniform(const std::string& name, float n);
   void setUniform(const std::string& name, bool v);
   void setUniform(const std::string& name, int n);
+  void setUniform(const std::string& name, unsigned int n);
   void setUniformArr(const std::string& name, std::vector<float> values);
 private:
   const unsigned int program;
-  std::map<std::string, int> uniformIds;
+  std::map<std::string, unsigned int> uniformIds;
+  std::map<std::string, unsigned int> textureIds;
 
   static unsigned int currentProgram;
   static std::map<ShaderName, Shader*> shaderMap;
