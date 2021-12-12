@@ -23,16 +23,15 @@ public:
   Mesh* mesh = nullptr;
   Material* material = nullptr;
   Shader* shader = nullptr;
+  bool noShade = false;
   std::vector<Node*> children;
   Node* parent = nullptr;
 
-  void listen();
   void update();
   Matrix<4, 4, float>& worldTransform();
   Vector<3, float> worldPos();
 
 private:
-  bool subbed_ = false;
   bool dirty_ = true;
   Matrix<4, 4, float> mm_ {};
 };

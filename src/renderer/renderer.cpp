@@ -22,39 +22,7 @@ Renderer::Renderer() {
   std::uint8_t pxWhite[3]{ 0xff, 0xff, 0xff };
   Texture::add("white", new Texture2D(1, 1, &pxWhite[0]));
 
-  // auto& a = scene.addNode();
-  // a.mesh = Mesh::get("donut_complete.obj");
-  // a.transform.scale = { 10, 10, 10 };
-
   scene.loadScene("scenes/default.scn");
-
-  // scene.addObject(shader, Mesh::get("donut_complete.obj"), {0,0,0}, {10,10,10});
-  // scene.addObject(shader, Mesh::get("sphere.obj"), {5,0,-5});
-  // scene.addObject(shader, Mesh::get("wall.obj"), {5,0,5}, {1,1,1}, {{0,1,0}, 180_deg});
-  // scene.addObject(shader, Mesh::get("wall_no_normal.obj"), {7,0,5}, {1,1,1}, {{0,1,0}, 180_deg});
-  // scene.addObject(shader, Mesh::get("cliff.obj"), {5,2,5}, {1,1,1}, {{0,1,0}, 180_deg});
-  // scene.addObject(shader, Mesh::get("cliff_no_normal.obj"), {7,2,5}, {1,1,1}, {{0,1,0}, 180_deg});
-  // scene.addObject(shader, Mesh::get("concrete.obj"), {5,4,5}, {1,1,1}, {{0,1,0}, 180_deg});
-  // scene.addObject(shader, Mesh::get("concrete_no_normal.obj"), {7,4,5}, {1,1,1}, {{0,1,0}, 180_deg});
-  // scene.addObject(shader, Mesh::get("concrete.obj"), {5,-3,5}, {1,1,1}, {{0,1,0}, 125_deg});
-  // wall = &scene.addObject(shader, Mesh::get("wallBlock.obj"), {-5,0,5});
-
-  // scene.addLight({ -200, 200, -450 }, { 1, 1, 1 }, 2e6);
-  
-  // {
-  //   auto mtl = new Material();
-  //   mtl->metallic = 0;
-  //   scene.addObject(shader, Mesh::get("sphere.obj"), lp, {.5, 1, .5}, {}).material = mtl;
-  // }
-  // {
-  //   auto mtlA = new Material();
-  //   mtlA->metallic = 0;
-  //   scene.addObject(shader, Mesh::get("wall.obj"), lp + Vector<3,float>{1.5,0,-5}).material = mtlA;
-  // }
-
-  // float colors[6][3]{{1,0,0}, {0,1,0}, {0,0,1}, {1,0,0}, {0,1,0}, {0,0,1}};
-  // for (int i = 0; i < 6; i++)
-  //   lights.push_back(scene.addLight(lp + lightPos(6, i, 1.5, 0), { colors[i][0], colors[i][1], colors[i][2] }, 10));
 }
 
 Renderer::~Renderer() {
@@ -64,13 +32,14 @@ Renderer::~Renderer() {
   Mesh::deleteMeshes();
 };
 
-void Renderer::render() {
+void Renderer::render(float dSec) {
   fb.bind();
   GLC(glClearColor(0, 0, 0, 1));
   GLC(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
   GLC(glEnable(GL_DEPTH_TEST));
   
   renderNode(scene.getGraph());
+  if (scene.getSkybox()) renderSkybox(*scene.getSkybox());
 
   fb.unbind();
   GLC(glClearColor(1, 1, 1, 1));
@@ -83,40 +52,49 @@ void Renderer::render() {
   GLC(glBindTexture(GL_TEXTURE_2D, fb.getAttachment(FB::COLOR)));
   GLC(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
 
-  // float td = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t0).count() / 1000.f;
-  // wall->rotate({{ 0, 1, 0 }, -.05_deg});
-  // for (int i = 0; i < lights.size(); i++)
-  //   lights[i]->position = lp + lightPos(lights.size(), i, 1.5, td);
+  for (auto animation : scene.getAnimations()) animation->execute(dSec);
 }
 
-void Renderer::renderNode(
-  const scene::Node& node,
-  scene::Transform transform,
-  Shader* shader
-) {
-  if (node.shader && node.shader != shader) {
+void Renderer::renderNode(scene::Node& node, Shader* shader) {
+  if (node.noShade) shader = nullptr;
+  else if (node.shader && node.shader != shader) {
     shader = node.shader;
     shader->use();
     bindUniforms(*shader);
   }
 
-  transform.translation += node.transform.translation;
-  transform.scale *= node.transform.scale;
-  transform.rotation = node.transform.rotation * transform.rotation;
-
-  // render
-  if (node.mesh) {
+  if (node.mesh && shader) {
     node.mesh->bind();
-    bindUniforms(*shader, transform);
+    bindUniforms(*shader, node.worldTransform());
 
-    for (auto& [mtl, ibo] : node.mesh->getMaterials()) {
+    for (auto& [m, ibo] : node.mesh->getMaterials()) {
+      auto mtl = node.material ?: m;
       bindUniforms(*shader, *mtl);
       ibo->bind();
       GLC(glDrawElements(GL_TRIANGLES, ibo->count, GL_UNSIGNED_INT, 0));
     }
   }
 
-  for (auto child : node.children) renderNode(*child, transform, shader);
+  for (auto child : node.children) renderNode(*child, shader);
+}
+
+void Renderer::renderSkybox(const Texture& texture) {
+  Matrix<4, 4> skyView;
+  skyView.write<3, 3>(scene.getCamera().viewMatrix());
+  Matrix<4, 4> skyVP = scene.getCamera().projectionMatrix() * skyView;
+
+  auto skyboxShader = Shader::get("skybox.vert", "skybox.frag");
+  skyboxShader->use();
+  skyboxShader->setUniform("transform", skyVP);
+  
+  texture.bind();
+  skyBox.bind();
+  auto ind = skyBox.getMaterials().begin()->second;
+  ind->bind();
+  
+  GLC(glCullFace(GL_FRONT));
+  GLC(glDrawElements(GL_TRIANGLES, ind->count, GL_UNSIGNED_INT, 0));
+  GLC(glCullFace(GL_BACK));
 }
 
 void Renderer::bindUniforms(Shader& shader) {
@@ -140,15 +118,14 @@ void Renderer::bindUniforms(Shader& shader) {
   }
 }
 
-void Renderer::bindUniforms(Shader& shader, const scene::Transform& trans) {
+void Renderer::bindUniforms(Shader& shader, const Matrix<4, 4, float>& trans) {
   if (shader == *Shader::get("pbr.vert", "pbr.frag")) {
-   auto model = 
-      transform::translate(trans.translation) * 
-      trans.rotation.matrix() * 
-      transform::scale(trans.scale);
-    
-    shader.setUniform("model", model);
-    shader.setUniform("normal", Matrix<3,3>{model}.inverse().transpose());
+    shader.setUniform("model", trans);
+    shader.setUniform("normal", Matrix<3,3>{trans}.inverse().transpose());
+  }
+  if (shader == *Shader::get("light.vert", "light.frag")) {
+    auto MVP = scene.getCamera().projectionMatrix() * scene.getCamera().viewMatrix() * trans;
+    shader.setUniform("MVP", MVP);
   }
 }
 
@@ -156,9 +133,12 @@ void Renderer::bindUniforms(Shader& shader, const Material& mtl) {
   if (shader == *Shader::get("pbr.vert", "pbr.frag")) {
     shader.setUniform("useAlbedoTexture", mtl.texture != nullptr);
     shader.setUniform("albedo.vertex", mtl.albedo);
-    // shader.setUniform("useNormalMap", mtl.normalMap != nullptr);
+    shader.setUniform("useNormalMap", mtl.normalMap != nullptr);
     (mtl.texture ?: Texture::get<Texture2D>("white"))->bind(shader.getTexture("albedo.texture"));
-    // if (mtl.normalMap) mtl.normalMap->bind(shader.getTexture("normalMap"));
+    if (mtl.normalMap) mtl.normalMap->bind(shader.getTexture("normalMap"));
+  }
+  if (shader == *Shader::get("light.vert", "light.frag")) {
+    shader.setUniform("color", mtl.albedo);
   }
 }
 

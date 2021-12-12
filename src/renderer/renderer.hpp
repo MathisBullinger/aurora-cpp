@@ -4,7 +4,6 @@
 #include "renderer/mesh.hpp"
 #include "renderer/scene.hpp"
 #include "renderer/frameBuffer.hpp"
-#include <chrono>
 
 namespace aur {
 
@@ -13,18 +12,15 @@ public:
   Renderer();
   ~Renderer();
 
-  void render();
+  void render(float dSec);
   void setWireMode(bool on);
 
 private:
-  void renderNode(
-    const scene::Node& node,
-    scene::Transform transform = {},
-    Shader* shader = nullptr
-  );
+  void renderNode(scene::Node& node, Shader* shader = nullptr);
+  void renderSkybox(const Texture& texture);
 
   void bindUniforms(Shader& shader);
-  void bindUniforms(Shader& shader, const scene::Transform& trans);
+  void bindUniforms(Shader& shader, const Matrix<4, 4, float>& trans);
   void bindUniforms(Shader& shader, const Material& mtl);
 
   Vector<3, float> lightPos(unsigned int n, unsigned int i, float r, float s);
@@ -32,8 +28,7 @@ private:
   Scene scene;
   FrameBuffer fb{ 1200, 900, FB::COLOR | FB::DEPTH };
   Shader& screenShader = *Shader::get("screen.vert", "screen.frag");
-  
-  const std::chrono::steady_clock::time_point t0 = std::chrono::high_resolution_clock::now();
+  Mesh skyBox{"cube.obj"};
 };
 
 }

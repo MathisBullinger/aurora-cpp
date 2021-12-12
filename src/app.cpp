@@ -18,8 +18,11 @@ void App::run() {
 
   Renderer renderer;
 
+  auto tLast = high_resolution_clock::now();
   while (running) {
     auto t0 = high_resolution_clock::now();
+    auto ftd = duration_cast<microseconds>(t0 - tLast).count() / 1e6;
+    tLast = t0;
     
     processEvents();
 
@@ -27,7 +30,7 @@ void App::run() {
       for (const auto& receiver : InputReceiver::active)
         receiver->update(input);
       
-      renderer.render();
+      renderer.render(ftd);
       window->swap();
     }
 

@@ -12,6 +12,7 @@ Scene::Scene() {
 
 Scene::~Scene() {
   for (auto light : lights_) delete light;
+  for (auto animation : animations_) delete animation;
 }
 
 scene::Node& Scene::addNode(scene::Node* parent) {
@@ -22,12 +23,16 @@ scene::Node& Scene::addNode(scene::Node* parent) {
   return *node;
 }
 
-const scene::Node& Scene::getGraph() const {
+scene::Node& Scene::getGraph() {
   return root_;
 }
 
 Camera& Scene::getCamera() const {
   return *(Camera*)&camera_;
+}
+
+Texture* Scene::getSkybox() const {
+  return skybox_;
 }
 
 void Scene::loadScene(const std::string& path) {
@@ -55,12 +60,23 @@ void Scene::loadNode(const hjson::Value& value, scene::Node* parent) {
       angle::degrees(values[1]->get<hjson::number>())
     };
   }
+
+  if (data.contains("angularOffset")) {
+    auto values = data["angularOffset"]->get<hjson::array>();
+    Quaternion rotation {
+      vec3(*values[0]).normal(),
+      angle::degrees(values[1]->get<hjson::number>())
+    };
+    node.transform.translation = rotation * node.transform.translation;
+  }
   
   if (data.contains("mesh"))
     node.mesh = Mesh::get(data["mesh"]->get<hjson::string>());
 
   if (data.contains("shader")) {
-    if (data["shader"]->type == hjson::string) {}
+    if (data["shader"]->type == hjson::string) {
+      if (data["shader"]->get<hjson::string>() == "none") node.noShade = true;
+    }
 
     if (data["shader"]->type == hjson::array) {
       auto values = data["shader"]->get<hjson::array>();
@@ -80,9 +96,33 @@ void Scene::loadNode(const hjson::Value& value, scene::Node* parent) {
     if (params.contains("strength")) 
       light->strength = params["strength"]->get<hjson::number>();
 
+    if (params.contains("color")) {
+      light->color = vec3(*params["color"]);
+      node.material = Material::get(std::string("lmtl") + std::to_string(lights_.size()));
+      node.material->albedo = light->color;
+    }
+
     lights_.push_back(light);
-    node.listen();
   }
+
+  if (data.contains("animate")) {
+    auto props = data["animate"]->get<hjson::object>();
+    assert(props["property"]->type == hjson::string);
+    auto prop = props["property"]->get<hjson::string>();
+
+    if (prop == "rotate") {
+      auto step = props["step"]->get<hjson::array>();
+      animations_.push_back(new Rotation{
+        node,
+        vec3(*step[0]),
+        step[1]->get<hjson::number>()
+      });
+    }
+    else std::cerr << "can't animate property: " << prop << std::endl;
+  }
+
+  if (!parent && data.contains("skybox")) 
+    skybox_ = Texture::get<Cubemap>(data["skybox"]->get<hjson::string>());
 
   if (data.contains("children")) {
     for (auto child : data["children"]->get<hjson::array>()) {
@@ -105,6 +145,22 @@ Vector<3, float> Scene::vec3(const hjson::Value& value) const {
 
 std::vector<Light*>& Scene::getLights() {
   return lights_;
+}
+
+std::vector<Animation*>& Scene::getAnimations() {
+  return animations_;
+}
+
+Animation::Animation(scene::Node& node) : node_{node} {}
+
+Animation::~Animation() {};
+
+Rotation::Rotation(scene::Node& node, const Vector<3, float>& axis, float theta)
+  : Animation{node}, axis_{axis}, thetaPerSec_{angle::degrees(theta)} {}
+
+void Rotation::execute(float sec) {
+  node_.transform.rotation = Quaternion{ axis_, thetaPerSec_ * sec } * node_.transform.rotation;
+  node_.update();
 }
 
 }
