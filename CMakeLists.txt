@@ -32,6 +32,7 @@ add_executable(${PROJECT_NAME}
   src/loaders/mesh.cpp
   src/loaders/objParser.cpp
   src/loaders/mtlParser.cpp
+  src/loaders/hjson.cpp
   src/input/keyboard.cpp
   src/input/mouse.cpp
   src/input/inputReceiver.cpp
