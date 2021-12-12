@@ -26,6 +26,7 @@ public:
   }
 
   Quaternion operator *(const Quaternion& rhs) const {
+    if (w == rhs.w && v == rhs.v) return *this;
     Quaternion res;
     res.w = w * rhs.w - v.dot(rhs.v);
     res.v = w * rhs.v + v * rhs.w + v.cross(rhs.v);
@@ -42,27 +43,27 @@ public:
     const Quaternion& q = *this;
     Quaternion r = target;
     
-    float flCosOmega = w * r.w + r.v.dot(v);
+    float cosOm = w * r.w + r.v.dot(v);
 
-    if (flCosOmega < 0) {
+    if (cosOm < 0) {
       r.w = -r.w;
       r.v = -r.v;
-      flCosOmega = -flCosOmega;
+      cosOm = -cosOm;
     }
 
     float k0, k1;
-    if (flCosOmega > 0.9999f) {
+    if (cosOm > 0.9999f) {
       k0 = 1-n;
       k1 = n;
     }
     else {
-      float flSinOmega = sqrt(1 - flCosOmega*flCosOmega);
+      float sinOm = sqrt(1 - cosOm * cosOm);
 
-      float flOmega = atan2(flSinOmega, flCosOmega);
-      float flOneOverSinOmega = 1/flSinOmega;
+      float flOmega = atan2(sinOm, cosOm);
+      float sinOmInv = 1.f / sinOm;
 
-      k0 = sin((1-n)*flOmega) * flOneOverSinOmega;
-      k1 = sin(n*flOmega) * flOneOverSinOmega;
+      k0 = sin((1 - n) * flOmega) * sinOmInv;
+      k1 = sin(n * flOmega) * sinOmInv;
     }
 
     Quaternion result;

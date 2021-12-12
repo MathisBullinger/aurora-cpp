@@ -39,12 +39,15 @@ template <>
 struct Type<object> { typedef std::map<std::string, Value*> type; };
 
 struct Value {
+  ~Value();
+  
   ValueType type;
   std::any data;
   Value* parent = nullptr;
 
   template <ValueType T>
   typename Type<T>::type get() const;
+  std::string typeName() const;
   bool isContainer() const;
 };
 

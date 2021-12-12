@@ -1,133 +1,110 @@
 #include "./scene.hpp"
-#include "util/gl.hpp"
-#include "renderer/texture.hpp"
-#include "renderer/cubemap.hpp"
+#include "util/path.hpp"
 
 namespace aur {
 
 Scene::Scene() {
-  camera.move({ 0, 0, -5 });
-  camera.lookAt({ 0, 0, 0 });
-
-  controller->start();
+  camera_.move({ 0, 0, -5 });
+  camera_.lookAt({ 0, 0, 0 });
+  root_.shader = Shader::get("pbr.vert", "pbr.frag");
+  cameraController_->start();
 }
 
-void Scene::render() {
-  auto view = camera.viewMatrix();
+Scene::~Scene() {
+  for (auto light : lights_) delete light;
+}
 
-  for (auto& [shader, meshes] : renderGraph) {
-    shader->use();
+scene::Node& Scene::addNode(scene::Node* parent) {
+  if (!parent) parent = &root_;
+  scene::Node* node = new scene::Node();
+  parent->children.push_back(node);
+  node->parent = parent;
+  return *node;
+}
 
-    shader->setUniform("projection", camera.projectionMatrix());
-    shader->setUniform("view", camera.viewMatrix());
-    shader->setUniform("camPos", camera.getPosition());
+const scene::Node& Scene::getGraph() const {
+  return root_;
+}
 
-    int i = 0;
-    for (const auto& light : lights) {
-      std::string k = "lights[" + std::to_string(i) + "].";
-      shader->setUniform(k + "position", light.position);
-      shader->setUniform(k + "color", light.color);
-      shader->setUniform(k + "strength", light.strength);
-      i++;
-    }
-    shader->setUniform("lightCount", (unsigned int)lights.size());
+Camera& Scene::getCamera() const {
+  return *(Camera*)&camera_;
+}
 
-    shader->setUniform("metallic", .5f);
-    shader->setUniform("roughness", .5f);
-    shader->setUniform("ao", .5f);
+void Scene::loadScene(const std::string& path) {
+  auto data = hjson::load(path::join(path::RESOURCES, path));
+  loadNode(*data);
+}
 
-    for (auto& [mesh, objects] : meshes) {
-      mesh->bind();
-
-      for (auto& obj : objects) {
-        auto model = obj.getModel();
-
-        shader->setUniform("model", model);
-        shader->setUniform("normal", Matrix<3,3>{model}.inverse().transpose());
-
-        // auto const * mtl = obj.material;
-        for (auto& [m, indexBuffer] : mesh->getMaterials()) {
-          auto mtl = obj.material ?: m;
-          shader->setUniform("useAlbedoTexture", mtl->texture != nullptr);
-          (mtl->texture ?: Texture::get<Texture2D>("white"))->bind(shader->getTexture("albedo.texture"));
-          shader->setUniform("albedo.vertex", mtl->albedo);
-
-          shader->setUniform("useNormalMap", mtl->normalMap != nullptr);
-          if (mtl->normalMap) mtl->normalMap->bind(shader->getTexture("normalMap"));
-
-          indexBuffer->bind();
-          GLC(glDrawElements(GL_TRIANGLES, indexBuffer->count, GL_UNSIGNED_INT, 0));
-        }
-      }
-    }
-  }
-
-  for (const auto& light : lights) {
-    auto shader = Shader::get("light.vert", "light.frag");
-    shader->use();
-    Matrix<4, 4, float> model = transform::translate(light.position) * transform::scale<3>(.05f);
-    shader->setUniform("MVP", camera.projectionMatrix() * camera.viewMatrix() * model);
-    shader->setUniform("color", light.color);
-    auto mesh = Mesh::get("cube.obj");
-    mesh->bind();
-    auto ind = mesh->getMaterials().begin()->second;
-    ind->bind();
-    GLC(glDrawElements(GL_TRIANGLES, ind->count, GL_UNSIGNED_INT, 0));
-  }
-
-
-  Matrix<4, 4> skyView;
-  skyView.write<3, 3>(camera.viewMatrix());
-  Matrix<4, 4> skyVP = camera.projectionMatrix() * skyView;
-
-  auto skyboxShader = Shader::get("skybox.vert", "skybox.frag");
-  skyboxShader->use();
-  skyboxShader->setUniform("transform", skyVP);
+void Scene::loadNode(const hjson::Value& value, scene::Node* parent) {
+  auto data = value.get<hjson::object>();
   
-  Texture::get<Cubemap>("skybox/")->bind();
-  skybox.bind();
-  auto ind = skybox.getMaterials().begin()->second;
-  ind->bind();
-  
-  GLC(glCullFace(GL_FRONT));
-  GLC(glDrawElements(GL_TRIANGLES, ind->count, GL_UNSIGNED_INT, 0));
-  GLC(glCullFace(GL_BACK));
-}
+  auto& node = addNode(parent);
 
-Object& Scene::addObject(
-  Shader* shader, 
-  Mesh* mesh, 
-  const vec3<float>& translate, 
-  const vec3<float>& scale,
-  const Quaternion& rotation
-) {
-  renderGraph[shader][mesh].push_back({translate, scale, rotation});
-  return renderGraph[shader][mesh].back();
-}
+  if (data.contains("translate"))
+    node.transform.translation = vec3(*data["translate"]);
 
-Light* Scene::addLight(const vec3<float>& pos, const vec3<float>& color, float strength) {
-  lights.push_front({ pos, color, strength });
-  return &lights.front();
-}
+  if (data.contains("scale"))
+    node.transform.scale = data["scale"]->type == hjson::number
+      ? Vector<3, float>::filled(data["scale"]->get<hjson::number>())
+      : vec3(*data["scale"]);
 
-Object::Object(vec3<float> translation, vec3<float> scale, Quaternion rotation)
-  : translation_{translation}, scale_{scale}, rotation_{rotation} {}
-
-Object::~Object() {
-  delete material;
-}
-
-const Matrix<4, 4, float>& Object::getModel() {
-  if (dirty_) {
-    model_ = transform::translate(translation_) * rotation_.matrix() * transform::scale(scale_);
-    dirty_ = false;
+  if (data.contains("rotate")) {
+    auto values = data["rotate"]->get<hjson::array>();
+    node.transform.rotation = {
+      vec3(*values[0]).normal(),
+      angle::degrees(values[1]->get<hjson::number>())
+    };
   }
-  return model_;
+  
+  if (data.contains("mesh"))
+    node.mesh = Mesh::get(data["mesh"]->get<hjson::string>());
+
+  if (data.contains("shader")) {
+    if (data["shader"]->type == hjson::string) {}
+
+    if (data["shader"]->type == hjson::array) {
+      auto values = data["shader"]->get<hjson::array>();
+      node.shader = Shader::get(
+        values[0]->get<hjson::string>(),
+        values[1]->get<hjson::string>()
+      );
+    }
+  }
+
+  if (data.contains("light")) {
+    Light* light = new Light();
+    light->node = &node;
+
+    auto params = data["light"]->get<hjson::object>();
+
+    if (params.contains("strength")) 
+      light->strength = params["strength"]->get<hjson::number>();
+
+    lights_.push_back(light);
+    node.listen();
+  }
+
+  if (data.contains("children")) {
+    for (auto child : data["children"]->get<hjson::array>()) {
+      loadNode(*child, &node);
+    }
+  }
 }
 
-void Object::rotate(const Quaternion& rotation) {
-  rotation_ = rotation * rotation_;
-  dirty_ = true;
+Vector<3, float> Scene::vec3(const hjson::Value& value) const {
+  assert(value.type == hjson::array);
+  Vector<3, float> result;
+  auto values = value.get<hjson::array>();
+  assert(values.size() == 3);
+  for (unsigned int i = 0; i < 3; i++) {
+    assert(values[i]->type == hjson::number);
+    result[i] = values[i]->get<hjson::number>();
+  }
+  return result;
+}
+
+std::vector<Light*>& Scene::getLights() {
+  return lights_;
 }
 
 }

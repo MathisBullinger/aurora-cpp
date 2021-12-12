@@ -37,6 +37,9 @@ public:
   void setUniform(const std::string& name, int n);
   void setUniform(const std::string& name, unsigned int n);
   void setUniformArr(const std::string& name, std::vector<float> values);
+
+  operator int() const;
+  bool operator ==(const Shader& rhs) const;
 private:
   const unsigned int program;
   std::map<std::string, unsigned int> uniformIds;

@@ -24,9 +24,10 @@ std::string join(std::string a, std::string b) {
 
 std::string resolvePath(base dir) {
   switch (dir) {
-    case SHADERS:   return join(basePath(), "resources/shaders/");
-    case TEXTURES:  return join(basePath(), "resources/textures/");
-    case MESHES:    return join(basePath(), "resources/meshes/");
+    case RESOURCES:  return join(basePath(), "resources/");
+    case SHADERS:    return join(basePath(), "resources/shaders/");
+    case TEXTURES:   return join(basePath(), "resources/textures/");
+    case MESHES:     return join(basePath(), "resources/meshes/");
   }
 }
 

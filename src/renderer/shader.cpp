@@ -93,6 +93,14 @@ unsigned int Shader::getTexture(const std::string& name) {
   return textureIds[name] = slot;
 }
 
+Shader::operator int() const {
+  return program;
+}
+
+bool Shader::operator ==(const Shader& rhs) const {
+  return program == rhs.program;
+}
+
 void Shader::setUniform(const std::string& name, const Matrix<4, 4, float>& matrix) {
   assert(currentProgram == program);
   GLC(glUniformMatrix4fv(getUniform(name), 1, GL_FALSE, &matrix.values[0]));

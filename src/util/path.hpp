@@ -5,6 +5,7 @@
 namespace aur::path {
 
 enum base {
+  RESOURCES,
   SHADERS,
   TEXTURES,
   MESHES

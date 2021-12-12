@@ -1,0 +1,34 @@
+{
+  shader: ["pbr.vert", "pbr.frag"]
+  children: [
+    {
+      mesh: donut_complete.obj
+      scale: 10
+      translate: [-1, 0, 0]
+    }
+    {
+      translate: [5, 4, 5]
+      rotate: [[0,1,0], 180]
+      children: [
+        {
+          mesh: wall_no_normal.obj
+        }
+        {
+          translate: [2, 0, 0]
+          mesh: wall.obj
+        }
+      ]
+    }
+    {
+      shader: ["light.vert", "light.frag"]
+      children: [
+        {
+          translate: [-200, 200, -450]
+          light: {
+            strength: 2e6
+          }
+        }
+      ]
+    }
+  ]
+}

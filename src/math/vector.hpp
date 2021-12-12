@@ -10,17 +10,17 @@
 
 namespace aur {
 
-template <const unsigned int dimensions, typename T = float>
+template <unsigned int dimensions, typename T = float>
 class Vector {
 public:
   template <typename... U>
   Vector(U... values): values{T(values)...} {}
 
-  template <typename U>
-  Vector(const Vector<dimensions, U>& source) {
-    for (unsigned int i = 0; i < dimensions; i++) values[i] = (T)source[i];
+  template <typename U, unsigned int D>
+  Vector(const Vector<D, U>& source) {
+    for (unsigned int i = 0; i < std::min(dimensions, D); i++) values[i] = (T)source[i];
   }
-  
+
   T values[dimensions] = {0};
 
   Vector<dimensions, T> operator +(const Vector<dimensions, T>& rhs) const {
@@ -90,6 +90,12 @@ public:
     return *this;
   }
 
+  bool operator ==(const Vector<dimensions, T>& rhs) const {
+    for (unsigned int i = 0; i < dimensions; i++) 
+      if (values[i] != rhs[i]) return false;
+    return true;
+  }
+
   template <unsigned int D> 
   Vector<D, T> fit() {
     Vector<D, T> result;
@@ -103,6 +109,17 @@ public:
 
   T& operator [](unsigned int i) {
     return values[i];
+  }
+
+  void fill(T n) {
+    for (unsigned int i = 0; i < dimensions; i++)
+      values[i] = n;
+  }
+
+  static Vector<dimensions, T> filled(T n) {
+    Vector<dimensions, T> result;
+    result.fill(n);
+    return result;
   }
 
   T x() const {

@@ -2,3 +2,4 @@
 build
 resources/*
 !resources/shaders
+!resources/scenes
