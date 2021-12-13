@@ -69,6 +69,18 @@ void Scene::loadNode(const hjson::Value& value, scene::Node* parent) {
     };
     node.transform.translation = rotation * node.transform.translation;
   }
+
+  if (data.contains("metal")) {
+    assert(data["metal"]->type == hjson::number);
+    if (!node.material) node.material = createMaterial();
+    node.material->metallic = data["metal"]->get<hjson::number>();
+  }
+
+  if (data.contains("rough")) {
+    assert(data["rough"]->type == hjson::number);
+    if (!node.material) node.material = createMaterial();
+    node.material->roughness = data["rough"]->get<hjson::number>();
+  }
   
   if (data.contains("mesh"))
     node.mesh = Mesh::get(data["mesh"]->get<hjson::string>());
@@ -98,7 +110,7 @@ void Scene::loadNode(const hjson::Value& value, scene::Node* parent) {
 
     if (params.contains("color")) {
       light->color = vec3(*params["color"]);
-      node.material = Material::get(std::string("lmtl") + std::to_string(lights_.size()));
+      if (!node.material) node.material = createMaterial();
       node.material->albedo = light->color;
     }
 
@@ -114,8 +126,18 @@ void Scene::loadNode(const hjson::Value& value, scene::Node* parent) {
       auto step = props["step"]->get<hjson::array>();
       animations_.push_back(new Rotation{
         node,
+        Animation::TimeFunc::linear,
         vec3(*step[0]),
         step[1]->get<hjson::number>()
+      });
+    }
+    else if (prop == "rough") {
+      auto interval = props["interval"]->get<hjson::array>();
+      animations_.push_back(new Roughness{
+        node,
+        Animation::TimeFunc::sin,
+        interval[0]->get<hjson::number>(),
+        interval[1]->get<hjson::number>()
       });
     }
     else std::cerr << "can't animate property: " << prop << std::endl;
@@ -143,6 +165,12 @@ Vector<3, float> Scene::vec3(const hjson::Value& value) const {
   return result;
 }
 
+Material* Scene::createMaterial() {
+  auto mtl = Material::get(std::string("cm") + std::to_string(mtlC));
+  mtlC++;
+  return mtl;
+}
+
 std::vector<Light*>& Scene::getLights() {
   return lights_;
 }
@@ -151,16 +179,40 @@ std::vector<Animation*>& Scene::getAnimations() {
   return animations_;
 }
 
-Animation::Animation(scene::Node& node) : node_{node} {}
+static float tLinear(float n) {
+  return n;
+}
+
+static float tSin(float n) {
+  return sinf(n);
+}
+
+Animation::Animation(scene::Node& node, TimeFunc tf) : node_{node} {
+  timing_ = tf == TimeFunc::linear ? tLinear : tSin;
+}
 
 Animation::~Animation() {};
 
-Rotation::Rotation(scene::Node& node, const Vector<3, float>& axis, float theta)
-  : Animation{node}, axis_{axis}, thetaPerSec_{angle::degrees(theta)} {}
+void Animation::execute(float sec) {
+  auto tdt = timing_(total_ + sec) - timing_(total_);
+  total_ += sec;
+  apply(tdt);
+}
 
-void Rotation::execute(float sec) {
-  node_.transform.rotation = Quaternion{ axis_, thetaPerSec_ * sec } * node_.transform.rotation;
+Rotation::Rotation(scene::Node& node, TimeFunc tf, const Vector<3, float>& axis, float theta)
+  : Animation{node, tf}, axis_{axis}, thetaPerSec_{angle::degrees(theta)} {}
+
+void Rotation::apply(float n) {
+  node_.transform.rotation = Quaternion{ axis_, thetaPerSec_ * n } * node_.transform.rotation;
   node_.update();
+}
+
+Roughness::Roughness(scene::Node& node, TimeFunc tf, float min, float max)
+  : Animation{node, tf}, min_{min}, max_{max} {}
+
+void Roughness::apply(float n) {
+  if (!node_.material) return;
+  node_.material->roughness += min_ + (max_ - min_) * n;
 }
 
 }

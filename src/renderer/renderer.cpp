@@ -20,7 +20,9 @@ Renderer::Renderer() {
   GLC(glEnable(GL_CULL_FACE));
 
   std::uint8_t pxWhite[3]{ 0xff, 0xff, 0xff };
+  std::uint8_t pxBlack[3]{ 0x00, 0x00, 0x00 };
   Texture::add("white", new Texture2D(1, 1, &pxWhite[0]));
+  Texture::add("black", new Texture2D(1, 1, &pxBlack[0]));
 
   scene.loadScene("scenes/default.scn");
 }
@@ -102,8 +104,7 @@ void Renderer::bindUniforms(Shader& shader) {
     shader.setUniform("projection", scene.getCamera().projectionMatrix());
     shader.setUniform("view", scene.getCamera().viewMatrix());
     shader.setUniform("camPos", scene.getCamera().getPosition());
-    shader.setUniform("roughness", .5f);
-    shader.setUniform("ao", .5f);
+    // shader.setUniform("ao", .2f);
 
     auto& lights = scene.getLights();
     shader.setUniform("lightCount", (unsigned int)lights.size());
@@ -131,10 +132,14 @@ void Renderer::bindUniforms(Shader& shader, const Matrix<4, 4, float>& trans) {
 
 void Renderer::bindUniforms(Shader& shader, const Material& mtl) {
   if (shader == *Shader::get("pbr.vert", "pbr.frag")) {
-    shader.setUniform("useAlbedoTexture", mtl.texture != nullptr);
     shader.setUniform("albedo.vertex", mtl.albedo);
-    shader.setUniform("useNormalMap", mtl.normalMap != nullptr);
     (mtl.texture ?: Texture::get<Texture2D>("white"))->bind(shader.getTexture("albedo.texture"));
+    shader.setUniform("metallic", mtl.metallic);
+    shader.setUniform("roughness.vertex", mtl.roughness);
+    (mtl.roughnessMap ?: Texture::get<Texture2D>("white"))->bind(shader.getTexture("roughness.texture"));
+    shader.setUniform("ao.vertex", mtl.ao);
+    (mtl.aoMap ?: Texture::get<Texture2D>("white"))->bind(shader.getTexture("ao.texture"));
+    shader.setUniform("useNormalMap", mtl.normalMap != nullptr);
     if (mtl.normalMap) mtl.normalMap->bind(shader.getTexture("normalMap"));
   }
   if (shader == *Shader::get("light.vert", "light.frag")) {

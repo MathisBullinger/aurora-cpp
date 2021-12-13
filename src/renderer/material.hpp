@@ -14,7 +14,11 @@ struct Material {
   cl albedo = {1, 1, 1};
   Texture* texture = nullptr;
   Texture* normalMap = nullptr;
-  float metallic = .2;
+  float metallic = .01;
+  float roughness = .5;
+  Texture* roughnessMap = nullptr;
+  float ao = 0.1;
+  Texture* aoMap = nullptr;
 
   static std::map<std::string, Material*> lib;
   static Material* get(const std::string id);

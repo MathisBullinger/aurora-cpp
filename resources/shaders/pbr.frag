@@ -16,10 +16,15 @@ struct Sampler {
   vec3 vertex;
 };
 
+struct SamplerFloat {
+  sampler2D texture;
+  float vertex;
+};
+
 uniform Sampler albedo;
 uniform float metallic;
-uniform float roughness;
-uniform float ao;
+uniform SamplerFloat roughness;
+uniform SamplerFloat ao;
 
 uniform sampler2D normalMap;
 uniform bool useNormalMap;
@@ -41,12 +46,13 @@ float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
 
 void main() {
+  vec3 albedoCl = texture(albedo.texture, frag.UV).rgb * albedo.vertex;
   vec3 normal = useNormalMap ? texture(normalMap, frag.UV).xyz * 2.0 - 1.0 : frag.normal;
+  float rough = texture(roughness.texture, frag.UV).r * roughness.vertex;
+  float aof = texture(ao.texture, frag.UV).r * ao.vertex;
   
   vec3 N = normalize(normal);
   vec3 V = normalize(viewPos - frag.pos);
-
-  vec3 albedoCl = texture(albedo.texture, frag.UV).rgb * albedo.vertex;
 
   vec3 F0 = vec3(0.04);
   F0 = mix(F0, albedoCl, metallic);
@@ -60,8 +66,8 @@ void main() {
     float attenuation = 1.0 / (1.0 + distance * distance);
     vec3 radiance = lights[i].color * attenuation * lights[i].strength;
 
-    float NDF = distributionGGX(N, H, roughness);
-    float G = geometrySmith(N, V, L, roughness);
+    float NDF = distributionGGX(N, H, rough);
+    float G = geometrySmith(N, V, L, rough);
     vec3 F = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
 
     vec3 n = NDF * G * F; 
@@ -73,7 +79,7 @@ void main() {
     Lo += (kD * albedoCl / PI + specular) * radiance * max(dot(N, L), 0.0);
   }
 
-  vec3 ambient = vec3(0.03) * albedoCl * ao;
+  vec3 ambient = vec3(0.1) * albedoCl * aof;
   vec3 color = ambient + Lo;
 
   fragColor = vec4(color, 1.0);

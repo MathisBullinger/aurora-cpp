@@ -38,6 +38,14 @@ std::map<std::string, Material*> parseMTL(const std::string& path) {
     if (parts[0] == "Ka" || parts[0] == "Kd") material->albedo *= cl;
     if (parts[0] == "map_Ka") material->texture = Texture::get<Texture2D>(parts[1]);
     if (parts[0] == "map_normal") material->normalMap = Texture::get<Texture2D>(parts[1], GL_RGB);
+    if (parts[0] == "map_Ro") {
+      material->roughnessMap = Texture::get<Texture2D>(parts[1], GL_RGB);
+      material->roughness = 1.f;
+    }
+    if (parts[0] == "map_Ra") {
+      material->aoMap = Texture::get<Texture2D>(parts[1], GL_RGB);
+      material->ao = 1.f;
+    }
   }
 
   return materials;

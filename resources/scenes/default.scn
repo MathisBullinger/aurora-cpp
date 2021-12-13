@@ -9,42 +9,101 @@
     }
     {
       translate: [5, 0, 5]
-      rotate: [[0,1,0], 180]
       children: [
         {
-          mesh: wall.obj
+          # front
+          rotate: [[0,1,0], 180]
+          children: [
+            {
+              mesh: wall.obj
+            }
+            {
+              mesh: wall_no_normal.obj
+              translate: [2, 0, 0]
+            }
+            {
+              mesh: cliff.obj
+              translate: [-2, 2, 0]
+            }
+            {
+              mesh: cliff_normal.obj
+              translate: [0, 2, 0]
+            }
+            {
+              mesh: cliff_no_normal.obj
+              translate: [2, 2, 0]
+            }
+            {
+              mesh: concrete.obj
+              translate: [-4, 4, 0]
+            }
+            {
+              mesh: concrete_rough_normal.obj
+              translate: [-2, 4, 0]
+            }
+            {
+              mesh: concrete_normal.obj
+              translate: [0, 4, 0]
+            }
+            {
+              mesh: concrete_no_normal.obj
+              translate: [2, 4, 0]
+            }
+          ]
         }
         {
-          mesh: wall_no_normal.obj
-          translate: [2, 0, 0]
-        }
-        {
-          mesh: cliff.obj
-          translate: [0, 2, 0]
-        }
-        {
-          mesh: cliff_no_normal.obj
-          translate: [2, 2, 0]
-        }
-        {
-          mesh: concrete.obj
-          translate: [0, 4, 0]
-        }
-        {
-          mesh: concrete_no_normal.obj
-          translate: [2, 4, 0]
-        }
-
-        {
-          mesh: concrete.obj
-          translate: [2, -3, 0]
-          rotate: [[0,-2,0], -60]
+          # side
+          rotate: [[0,1,0], 120]
+          translate: [7, 0, 3]
+          children: [
+            {
+              mesh: wall.obj
+            }
+            {
+              mesh: wall_no_normal.obj
+              translate: [2, 0, 0]
+            }
+            {
+              mesh: cliff.obj
+              translate: [0, 2, 0]
+            }
+            {
+              mesh: cliff_no_normal.obj
+              translate: [2, 2, 0]
+            }
+            {
+              mesh: concrete.obj
+              translate: [-4, 4, 0]
+            }
+            {
+              mesh: concrete_rough_normal.obj
+              translate: [-2, 4, 0]
+            }
+            {
+              mesh: concrete_normal.obj
+              translate: [0, 4, 0]
+            }
+            {
+              mesh: concrete_no_normal.obj
+              translate: [2, 4, 0]
+            }
+          ]
         }
       ]
     }
     {
+      mesh: wallBlock.obj
+      translate: [-5, 0, 5]
+      animate: {
+        property: rotate
+        step: [[0, 1, 0], -10]
+      }
+    }
+    {
       mesh: sphere.obj
       translate: [5, 0, -5]
+      metal: 0.7
+      rough: 0.2
     }
     { # sun
       shader: none
@@ -55,22 +114,47 @@
     }
     {
       translate: [15, -10, -10]
-      animate: {
-        property: rotate
-        step: [[0, 1, 0], 20]
-      }
       children: [
         {
           mesh: sphere.obj
           scale: [0.5, 1, 0.5]
         }
         {
+          translate: [0, 0, -5]
+          children: [
+            {
+              mesh: square.obj
+              translate: [2, 0, 0]
+              metal: 0
+            }
+            {
+              mesh: square.obj
+              translate: [0, 0, 0]
+              metal: 0.5
+              # animate: {
+              #   property: rough
+              #   interval: [0.1, 0.9]
+              #   timing: sin
+              # }
+            }
+            {
+              mesh: square.obj
+              translate: [-2, 0, 0]
+              metal: 1
+            }
+          ]
+        }
+        {
           shader: ["light.vert", "light.frag"]
-          scale: 0.1
+          scale: 0.05
+          animate: {
+            property: rotate
+            step: [[0, 1, 0], 20]
+          }
           children: [
             {
               mesh: cube.obj
-              translate: [15, 0, 0]
+              translate: [25, 0, 0]
               light: {
                 strength: 10
                 color: [1, 0, 0]
@@ -78,7 +162,7 @@
             }
             {
               mesh: cube.obj
-              translate: [15, 0, 0]
+              translate: [25, 0, 0]
               angularOffset: [[0,1,0], 60]
               light: {
                 strength: 10
@@ -87,7 +171,7 @@
             }
             {
               mesh: cube.obj
-              translate: [15, 0, 0]
+              translate: [25, 0, 0]
               angularOffset: [[0,1,0], 120]
               light: {
                 strength: 10
@@ -96,7 +180,7 @@
             }
             {
               mesh: cube.obj
-              translate: [15, 0, 0]
+              translate: [25, 0, 0]
               angularOffset: [[0,1,0], 180]
               light: {
                 strength: 10
@@ -105,7 +189,7 @@
             }
             {
               mesh: cube.obj
-              translate: [15, 0, 0]
+              translate: [25, 0, 0]
               angularOffset: [[0,1,0], 240]
               light: {
                 strength: 10
@@ -114,7 +198,7 @@
             }
             {
               mesh: cube.obj
-              translate: [15, 0, 0]
+              translate: [25, 0, 0]
               angularOffset: [[0,1,0], 300]
               light: {
                 strength: 10
