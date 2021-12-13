@@ -104,7 +104,6 @@ void Renderer::bindUniforms(Shader& shader) {
     shader.setUniform("projection", scene.getCamera().projectionMatrix());
     shader.setUniform("view", scene.getCamera().viewMatrix());
     shader.setUniform("camPos", scene.getCamera().getPosition());
-    // shader.setUniform("ao", .2f);
 
     auto& lights = scene.getLights();
     shader.setUniform("lightCount", (unsigned int)lights.size());
@@ -149,14 +148,6 @@ void Renderer::bindUniforms(Shader& shader, const Material& mtl) {
 
 void Renderer::setWireMode(bool on) {
   GLC(glPolygonMode(GL_FRONT_AND_BACK, on ? GL_LINE : GL_FILL));
-}
-
-Vector<3, float> Renderer::lightPos(unsigned int n, unsigned int i, float r, float s) {
-  return Vector<3, float>{
-    sinf(2 * PI / n * i + 10_deg * s) * r,
-    0,
-    cosf(2 * PI / n * i + 10_deg * s) * r,
-  };
 }
 
 }

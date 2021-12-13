@@ -23,8 +23,6 @@ private:
   void bindUniforms(Shader& shader, const Matrix<4, 4, float>& trans);
   void bindUniforms(Shader& shader, const Material& mtl);
 
-  Vector<3, float> lightPos(unsigned int n, unsigned int i, float r, float s);
-
   Scene scene;
   FrameBuffer fb{ 1200, 900, FB::COLOR | FB::DEPTH };
   Shader& screenShader = *Shader::get("screen.vert", "screen.frag");
